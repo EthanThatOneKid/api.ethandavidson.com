@@ -1,5 +1,6 @@
 import { Application } from "./deps.ts";
 import { routers } from "./routes/mod.ts";
+import { PORT } from "./shared/constants.ts";
 
 const app = new Application();
 
@@ -16,4 +17,4 @@ app.addEventListener("listen", ({ port }) => {
   console.log(`Listening on http://localhost:${port}/ ✨`);
 });
 
-await app.listen({ port: 8000 });
+await app.listen({ port: Number(PORT) });
