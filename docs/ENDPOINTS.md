@@ -2,7 +2,7 @@
 
 This document outlines all of the endpoints of the [REST](https://developer.mozilla.org/en-US/docs/Glossary/REST) API.
 
-### `about/`
+## `about/`
 
 ```ts
 interface About {
@@ -15,7 +15,7 @@ interface About {
 }
 ```
 
-### `status/`
+## `status/`
 
 ```ts
 interface Status {
@@ -25,13 +25,13 @@ interface Status {
 }
 ```
 
-### `projects/`
+## `projects/`
 
 ```ts
 type Projects = Project[];
 ```
 
-#### `projects/[project_title]/`
+### `projects/[project_title]/`
 
 ```ts
 interface Project {
@@ -43,7 +43,7 @@ interface Project {
 }
 ```
 
-### `experience/`
+## `experience/`
 
 ```ts
 type Experiences = Experience[];
@@ -61,7 +61,7 @@ interface Experience {
 }
 ```
 
-### `resume/`
+## `resume/`
 
 ```ts
 interface Resume {
@@ -71,18 +71,18 @@ interface Resume {
 }
 ```
 
-#### `resume/markdown/`
+### `resume/markdown/`
 
 This endpoint will render the markdown version of my resume.
 
-##### `resume/markdown/raw/`
+### `resume/markdown/raw/`
 
 This endpoint will deliver the raw markdown as text.
 
-#### `resume/html/`
+### `resume/html/`
 
 This endpoint will render the HTML of my resume.
 
-##### `resume/html/raw/`
+### `resume/html/raw/`
 
 This endpoint will deliver the raw HTML as text.
