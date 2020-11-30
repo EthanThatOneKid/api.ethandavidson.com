@@ -6,6 +6,8 @@ This document outlines all of the endpoints of the [REST](https://developer.mozi
 
 ```ts
 interface About {
+  bio: string;
+  image_url: string;
   twitter_handle: string;
   twitter_url: string;
   github_handle: string;
