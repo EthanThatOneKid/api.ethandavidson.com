@@ -6,7 +6,7 @@
 
 > TODO: Integrate denon.
 
-To run the program, execute `deno run --allow-net --allow-read mod.ts`.
+To run the program, execute `deno run --allow-net --allow-read --allow-env mod.ts`.
 
 ## Deployment 🚀
 
