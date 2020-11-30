@@ -1,5 +1,7 @@
 # api.ethandavidson.com ✨
 
+[![Heroku App Status](http://heroku-shields.herokuapp.com/api-ethandavidson-com)](https://api-ethandavidson-com.herokuapp.com)
+
 > The official API of Ethan Davidson.
 
 ## Handbook 📚
