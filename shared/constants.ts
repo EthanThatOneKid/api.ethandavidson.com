@@ -17,6 +17,7 @@ for (
     },
   )
 ) {
+  console.log({ name, value });
   if (value === undefined || value.length === 0) {
     throw new Error(`Expected secret ${name} in '.env' file.`);
   }
