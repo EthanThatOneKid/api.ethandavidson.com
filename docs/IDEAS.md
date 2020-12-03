@@ -1,8 +1,8 @@
 # Ideas 🧠
 
-## Pokemon Endpoint
+## Pokémon Endpoint
 
-This endpoint would show my competetive teams and friend code to battle with.
+This endpoint would show my competitive teams and friend code to battle with.
 
 ## Discord Pusher
 

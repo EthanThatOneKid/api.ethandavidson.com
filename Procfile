@@ -1,1 +1,1 @@
-web: deno run --allow-net --allow-read --allow-env mod.ts
+web: npx pm2 start mod.ts --interpreter="deno" --interpreter-args="run --allow-net --allow-env --allow-read"

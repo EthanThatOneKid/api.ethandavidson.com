@@ -49,7 +49,7 @@ interface Project {
 type Experiences = Experience[];
 ```
 
-### `experience/[title]`
+### `experience/[experience_id]`
 
 ```ts
 interface Experience {
