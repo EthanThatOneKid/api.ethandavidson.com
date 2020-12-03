@@ -75,7 +75,7 @@ interface Resume {
 
 This endpoint will render the markdown version of my resume.
 
-### `resume/markdown/raw/`
+#### `resume/markdown/raw/`
 
 This endpoint will deliver the raw markdown as text.
 
@@ -83,6 +83,6 @@ This endpoint will deliver the raw markdown as text.
 
 This endpoint will render the HTML of my resume.
 
-### `resume/html/raw/`
+#### `resume/html/raw/`
 
 This endpoint will deliver the raw HTML as text.
