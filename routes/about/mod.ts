@@ -10,6 +10,7 @@ export interface About {
   twitter_url: string;
   github_handle: string;
   github_url: string;
+  current_activity: string;
 }
 
 export default new Router().get("/about", async (ctx: Context) => {
@@ -21,6 +22,7 @@ export default new Router().get("/about", async (ctx: Context) => {
     twitter_url: `https://twitter.com/${TWITTER_HANDLE}`,
     github_handle: GITHUB_HANDLE,
     github_url: `https://github.com/${GITHUB_HANDLE}`,
+    current_activity: ""
   };
   ctx.response.body = JSON.stringify(body, null, 2);
   ctx.response.type = "application/json";

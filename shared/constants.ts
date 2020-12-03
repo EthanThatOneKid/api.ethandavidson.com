@@ -17,6 +17,14 @@ export const TWITTER_BEARER_TOKEN = String(
     Deno.env.get("TWITTER_BEARER_TOKEN"),
 );
 
+export const DISCORD_ID = String(
+  env["DISCORD_ID"] || Deno.env.get("DISCORD_ID"),
+);
+
+export const DISCORD_TOKEN = String(
+  env["DISCORD_TOKEN"] || Deno.env.get("DISCORD_TOKEN"),
+);
+
 for (
   const [name, value] of Object.entries(
     {
@@ -24,6 +32,8 @@ for (
       GITHUB_HANDLE,
       TWITTER_HANDLE,
       TWITTER_BEARER_TOKEN,
+      DISCORD_ID,
+      DISCORD_TOKEN,
     },
   )
 ) {

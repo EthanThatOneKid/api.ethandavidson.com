@@ -12,6 +12,7 @@ interface About {
   twitter_url: string;
   github_handle: string;
   github_url: string;
+  current_activity: string;
 }
 ```
 
