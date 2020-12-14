@@ -1,6 +1,6 @@
-# Endpoints 🎁
+# Endpoints 👽
 
-This document outlines all of the endpoints of the [REST](https://developer.mozilla.org/en-US/docs/Glossary/REST) API.
+> This document outlines all of the endpoints of the [REST](https://developer.mozilla.org/en-US/docs/Glossary/REST) API.
 
 <details>
   <summary>
