@@ -11,7 +11,7 @@ This document outlines all of the endpoints of the [REST](https://developer.mozi
 - [`about/`](#about-)
 - [`status/`](#status-)
 - [`projects/`](#projects-)
-- [`experience/](#experience-)
+- [`experience/`](#experience-)
 - [`resume/`](#resume-)
 - [`verify/`](#verify-)
 ---
