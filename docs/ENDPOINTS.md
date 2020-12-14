@@ -6,14 +6,16 @@ This document outlines all of the endpoints of the [REST](https://developer.mozi
   <summary>
     Table of Contents
   </summary>
-  ---
-  - [`about/`](#about-)
-  - [`status/`](#status-)
-  - [`projects/`](#projects-)
-  - [`experience/](#experience-)
-  - [`resume/`](#resume-)
-  - [`verify/`](#verify-)
-  ---
+
+---
+- [`about/`](#about-)
+- [`status/`](#status-)
+- [`projects/`](#projects-)
+- [`experience/](#experience-)
+- [`resume/`](#resume-)
+- [`verify/`](#verify-)
+---
+
 </details>
   
 
