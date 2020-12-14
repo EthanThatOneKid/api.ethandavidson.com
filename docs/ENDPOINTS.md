@@ -106,3 +106,6 @@ This endpoint will render the HTML of my resume.
 This endpoint will deliver the raw HTML as text.
 
 ## `verify/` 👎
+
+This endpoint will securely authenticate Ethan wherever this endpoint is fetched.
+This is used to authenticate for admin-ops on other *EthanThatOneKid* products.
