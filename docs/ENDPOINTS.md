@@ -4,9 +4,7 @@ This document outlines all of the endpoints of the [REST](https://developer.mozi
 
 <details>
   <summary>
-    ---
-    ## Table of Contents
-    ---
+    Table of Contents
   </summary>
   ---
   - [`about/`](#about-)
