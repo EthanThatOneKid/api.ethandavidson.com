@@ -15,3 +15,7 @@ This module will handle all of the request-fetching and contain the appropriate 
 ## Error Handling
 
 There needs to be a consistent way to manage errors.
+
+## Wishlist Endpoint
+
+This endpoint returns an array of WishItem objects that have the title, purchase link, and when I recieved the gift (once I get it).
