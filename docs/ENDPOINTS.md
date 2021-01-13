@@ -50,6 +50,7 @@ type Projects = Project[];
 
 ```ts
 interface Project {
+  slug: string;
   title: string;
   code_url: string | null;
   demo_url: string | null;
@@ -58,7 +59,7 @@ interface Project {
 }
 ```
 
-## `experience/` 👎
+## `experience/` 👍
 
 ```ts
 type Experiences = Experience[];
@@ -68,11 +69,12 @@ type Experiences = Experience[];
 
 ```ts
 interface Experience {
+  slug: string;
   title: string;
   establishment: string | null;
-  start_date: number;
-  end_date: number | "PRESENT";
   info: string | null;
+  start_date: ApproxDate;
+  end_date: ApproxDate;
 }
 ```
 
