@@ -7,15 +7,12 @@
     Table of Contents
   </summary>
 
----
 - [`about/`](#about-)
 - [`status/`](#status-)
 - [`projects/`](#projects-)
 - [`experience/`](#experience-)
 - [`resume/`](#resume-)
 - [`verify/`](#verify-)
----
-
 </details>
   
 
