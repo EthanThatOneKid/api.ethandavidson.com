@@ -4,7 +4,7 @@
 
 ## Development 👨‍💻
 
-To install the development runtime, execute `deno install -qAf --unstable https://deno.land/x/denon@2.4.4/denon.ts`.
+To install the development runtime, execute `deno install -qAf --unstable https://deno.land/x/denon@2.4.6/denon.ts`.
 
 To spin up the development server, execute `denon run --allow-net --allow-read --allow-env mod.ts`.
 
