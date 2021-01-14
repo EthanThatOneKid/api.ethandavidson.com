@@ -1,5 +1,5 @@
 import { Router } from "../../deps.ts";
-import type { Context } from "../../deps.ts";
+import type { RouterContext } from "../../deps.ts";
 import { getTwitterProfile } from "../../shared/twitterClient.ts";
 import { GITHUB_HANDLE, TWITTER_HANDLE } from "../../shared/constants.ts";
 
@@ -13,7 +13,7 @@ export interface About {
   current_activity: string;
 }
 
-export default new Router().get("/about", async (ctx: Context) => {
+export default new Router().get("/about", async (ctx: RouterContext) => {
   const { description, profile_image_url } = await getTwitterProfile();
   const body: About = {
     bio: description,
@@ -22,7 +22,7 @@ export default new Router().get("/about", async (ctx: Context) => {
     twitter_url: `https://twitter.com/${TWITTER_HANDLE}`,
     github_handle: GITHUB_HANDLE,
     github_url: `https://github.com/${GITHUB_HANDLE}`,
-    current_activity: ""
+    current_activity: "",
   };
   ctx.response.body = JSON.stringify(body, null, 2);
   ctx.response.type = "application/json";
