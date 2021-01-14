@@ -1,5 +1,9 @@
 import { TWITTER_BEARER_TOKEN, TWITTER_HANDLE } from "./constants.ts";
 
+const headers = new Headers(
+  { "Authorization": `Bearer ${TWITTER_BEARER_TOKEN}` },
+);
+
 export interface TwitterProfile {
   name: string;
   username: string;
@@ -7,18 +11,38 @@ export interface TwitterProfile {
   profile_image_url: string;
 }
 
-const headers = new Headers(
-  { "Authorization": `Bearer ${TWITTER_BEARER_TOKEN}` },
-);
+export interface TwitterQuery {
+  base?: string;
+  route: string[];
+  fields: [string, string][];
+}
+
+export const composeTwitterUrl = (
+  { base = "https://api.twitter.com/2/", route, fields }: TwitterQuery,
+) => {
+  const params = new URLSearchParams();
+  for (const [key, value] of fields) {
+    params.append(key, value);
+  }
+  const url = [base, ...route].join("/").replace(/\/+/g, "/");
+  return [url, params.toString()].join("?");
+};
 
 export const getTwitterProfile = async (): Promise<TwitterProfile> => {
-  const fields = new URLSearchParams();
-  fields.append(
-    "user.fields",
-    "description,entities,pinned_tweet_id,profile_image_url",
-  );
+  const query: TwitterQuery = {
+    route: [
+      "users",
+      "by",
+      "username",
+      TWITTER_HANDLE,
+    ],
+    fields: [[
+      "user.fields",
+      "description,entities,pinned_tweet_id,profile_image_url",
+    ]],
+  };
   const response = await fetch(
-    `https://api.twitter.com/2/users/by/username/${TWITTER_HANDLE}?${fields}`,
+    composeTwitterUrl(query),
     { headers },
   );
   const payload = await response.json();
