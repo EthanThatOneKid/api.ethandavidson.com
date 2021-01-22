@@ -7,7 +7,7 @@
     "serve": "cd ../ && deno run --allow-net --allow-read --allow-env mod.ts",
     "test": "deno test --allow-read --allow-net",
     "build": "deno bundle mod.ts mod.bundle.js",
-    "publish": "np"
+    "publish": "npm run build && np"
   },
   "repository": {
     "type": "git",
