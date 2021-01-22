@@ -40,7 +40,7 @@ interface Status {
 }
 ```
 
-## `projects/` ❌
+## `projects/` ✔
 
 ```ts
 type Projects = Project[];
@@ -52,10 +52,15 @@ type Projects = Project[];
 interface Project {
   slug: string;
   title: string;
-  code_url: string | null;
+  description: string;
+  tags: string[];
+  technologies: ProjectTag[];
   demo_url: string | null;
-  homepage: string | null;
-  description: string | null;
+  home_url: string | null;
+  github: {
+    owner: string;
+    repo: string;
+  } | null;
 }
 ```
 
