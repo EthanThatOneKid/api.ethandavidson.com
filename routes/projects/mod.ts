@@ -231,7 +231,7 @@ export default createCollectionRouter<Project>("projects", [
     title: "acmcsuf.com",
     description: "The official API of Ethan Davidson.",
     tags: ["acm", "webmaster", "website"],
-    technologies: ["svelte", "vercel", "sass", "typescript"],
+    technologies: ["svelte", "sapper", "vercel", "sass", "typescript"],
     demo_url: "https://acmcsuf.com/",
     home_url: "https://github.com/ethanthatonekid/acmcsuf.com/#readme",
     github: { owner: "EthanThatOneKid", repo: "acmcsuf.com" },
