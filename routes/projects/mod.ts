@@ -215,4 +215,25 @@ export default createCollectionRouter<Project>("projects", [
     home_url: "https://github.com/ethanthatonekid/moonlight-tumble/#readme",
     github: { owner: "EthanThatOneKid", repo: "moonlight-tumble" },
   },
+  {
+    slug: "api-ethandavidson-com",
+    title: "api.ethandavidson.com",
+    description: "The official API of Ethan Davidson.",
+    tags: ["api", "rest"],
+    technologies: ["deno"],
+    demo_url: null,
+    home_url:
+      "https://github.com/ethanthatonekid/api.ethandavidson.com/#readme",
+    github: { owner: "EthanThatOneKid", repo: "api.ethandavidson.com" },
+  },
+  {
+    slug: "acm-csuf-site",
+    title: "acmcsuf.com",
+    description: "The official API of Ethan Davidson.",
+    tags: ["acm", "webmaster", "website"],
+    technologies: ["svelte", "vercel", "sass", "typescript"],
+    demo_url: "https://acmcsuf.com/",
+    home_url: "https://github.com/ethanthatonekid/acmcsuf.com/#readme",
+    github: { owner: "EthanThatOneKid", repo: "acmcsuf.com" },
+  },
 ]);
