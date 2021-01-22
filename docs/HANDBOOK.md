@@ -14,4 +14,20 @@ To test the client library, spin up the development server in one terminal insta
 
 Visit the [Heroku Dashboard][heroku_dash] to deploy the latest version of the site.
 
+## Package Managers 📦
+
+### NPM 💚
+
+```sh
+cd client
+npm login
+npm run publish
+```
+
+### deno.land/x/ 🦕
+
+```sh
+# tbd
+```
+
 [heroku_dash]: https://dashboard.heroku.com/apps/api-ethandavidson-com

@@ -1,0 +1,30 @@
+{
+  "name": "api.ethandavidson.com",
+  "version": "0.0.1",
+  "description": "The official API of Ethan Davidson.",
+  "main": "mod.bundle.js",
+  "scripts": {
+    "serve": "cd ../ && deno run --allow-net --allow-read --allow-env mod.ts",
+    "test": "deno test --allow-read --allow-net",
+    "build": "deno bundle mod.ts mod.bundle.js",
+    "publish": "np"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethanthatonekid/api.ethandavidson.com.git.git"
+  },
+  "keywords": [
+    "api",
+    "rest",
+    "ethandavidson"
+  ],
+  "author": "EthanThatOneKid",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ethanthatonekid/api.ethandavidson.com.git/issues"
+  },
+  "homepage": "https://github.com/ethanthatonekid/api.ethandavidson.com.git#readme",
+  "devDependencies": {
+    "np": "^7.2.0"
+  }
+}
