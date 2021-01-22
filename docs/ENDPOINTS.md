@@ -16,7 +16,7 @@
 </details>
   
 
-## `about/` 👍
+## `about/` ✔
 
 ```ts
 interface About {
@@ -30,7 +30,7 @@ interface About {
 }
 ```
 
-## `status/` 👎
+## `status/` ❌
 
 ```ts
 interface Status {
@@ -40,7 +40,7 @@ interface Status {
 }
 ```
 
-## `projects/` 👎
+## `projects/` ❌
 
 ```ts
 type Projects = Project[];
@@ -59,7 +59,7 @@ interface Project {
 }
 ```
 
-## `experience/` 👍
+## `experience/` ✔
 
 ```ts
 type Experiences = Experience[];
@@ -78,7 +78,7 @@ interface Experience {
 }
 ```
 
-## `resume/` 👎
+## `resume/` ❌
 
 ```ts
 interface Resume {
@@ -104,7 +104,7 @@ This endpoint will render the HTML of my resume.
 
 This endpoint will deliver the raw HTML as text.
 
-## `verify/` 👎
+## `verify/` ❌
 
 This endpoint will securely authenticate Ethan wherever this endpoint is fetched.
 This is used to authenticate for admin-ops on other *EthanThatOneKid* products.
