@@ -15,7 +15,10 @@ export interface Project {
   } | null;
 }
 
-export default createCollectionRouter<Project>("projects", [
+export const getProjectFromSlug = (query: string) =>
+  projects.find(({ slug }) => slug === query);
+
+export const projects: Project[] = [
   {
     slug: "neolang",
     title: "NeoLang",
@@ -236,4 +239,6 @@ export default createCollectionRouter<Project>("projects", [
     home_url: "https://github.com/ethanthatonekid/acmcsuf.com/#readme",
     github: { owner: "EthanThatOneKid", repo: "acmcsuf.com" },
   },
-]);
+];
+
+export default createCollectionRouter<Project>("projects", projects);

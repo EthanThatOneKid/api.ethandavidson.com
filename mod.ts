@@ -17,4 +17,8 @@ app.addEventListener("listen", ({ port }) => {
   console.log(`Listening on http://localhost:${port}/ ✨`);
 });
 
-await app.listen({ port: Number(PORT) });
+export const serve = async () => {
+  await app.listen({ port: Number(PORT) });
+};
+
+await serve();

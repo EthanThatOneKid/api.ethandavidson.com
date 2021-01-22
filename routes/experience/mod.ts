@@ -10,7 +10,10 @@ export interface Experience {
   end_date: ApproxDate;
 }
 
-export default createCollectionRouter<Experience>("experience", [
+export const getExperienceFromSlug = (query: string) =>
+  experiences.find(({ slug }) => slug === query);
+
+export const experiences: Experience[] = [
   {
     slug: "google-step-intern",
     title: "Google STEP Intern",
@@ -80,4 +83,6 @@ export default createCollectionRouter<Experience>("experience", [
     info:
       "I was the founder and president of my high school's programming club during my senior year. We hosted coding challenges, JavaScript workshops, and more at weekly meetings.",
   },
-]);
+];
+
+export default createCollectionRouter<Experience>("experience", experiences);
