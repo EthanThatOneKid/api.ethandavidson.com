@@ -2,11 +2,12 @@
   "name": "api.ethandavidson.com",
   "version": "0.0.2",
   "description": "The official API of Ethan Davidson.",
+  "main": "client/mod.bundle.js",
   "module": "client/mod.bundle.js",
   "scripts": {
     "serve": "deno run --allow-net --allow-read --allow-env mod.ts",
     "serve:test": "deno test --allow-read --allow-net --allow-env",
-    "build": "deno bundle client/mod.ts client/mod.bundle.js",
+    "build": "deno run scripts/build.ts",
     "release": "npm run build && np"
   },
   "repository": {
