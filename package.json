@@ -1,6 +1,6 @@
 {
   "name": "api.ethandavidson.com",
-  "version": "0.0.2-3",
+  "version": "0.0.2",
   "description": "The official API of Ethan Davidson.",
   "module": "client/mod.bundle.js",
   "scripts": {
