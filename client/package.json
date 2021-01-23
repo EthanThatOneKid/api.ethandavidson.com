@@ -2,7 +2,7 @@
   "name": "api.ethandavidson.com",
   "version": "0.0.2-1",
   "description": "The official API of Ethan Davidson.",
-  "main": "mod.bundle.js",
+  "module": "mod.bundle.js",
   "scripts": {
     "serve": "cd ../ && deno run --allow-net --allow-read --allow-env mod.ts",
     "serve:test": "cd ../ && deno test --allow-read --allow-net --allow-env",
