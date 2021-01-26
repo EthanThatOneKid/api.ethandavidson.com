@@ -24,3 +24,7 @@ This endpoint returns an array of WishItem objects that have the title, purchase
 
 This endpoint returns an rss feed of content type 'application/rss+xml'. 
 Sub paths can return the data of the feed in JSON.
+
+## Blogposts Endpoint
+
+This endpoint will manage all of the needed services for responding with quick blog data.
