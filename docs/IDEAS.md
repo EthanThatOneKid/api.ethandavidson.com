@@ -19,3 +19,8 @@ There needs to be a consistent way to manage errors.
 ## Wishlist Endpoint
 
 This endpoint returns an array of WishItem objects that have the title, purchase link, and when I recieved the gift (once I get it).
+
+## RSS Feed Endpoint
+
+This endpoint returns an rss feed of content type 'application/rss+xml'. 
+Sub paths can return the data of the feed in JSON.
