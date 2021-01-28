@@ -18,3 +18,7 @@ export const routers: Router[] = [
   experienceRoute,
   projectsRoute,
 ];
+
+// export const getRoutes = () => {
+//   // https://github.com/joelnet/cloudflare-worker-website/blob/master/src/lib/auto-routes.js
+// }
