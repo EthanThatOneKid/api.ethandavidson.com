@@ -10,7 +10,7 @@ Take a look at all of the available [API endpoints](docs/ENDPOINTS.md)!
 
 ## Client Library
 
-Check out the documentation for the official [client library](docs/API.md)!
+Check out the documentation for the official [client library][client_repo]!
 
 ## Handbook
 
@@ -22,3 +22,4 @@ Engineered with 🦕 by [EthanThatOneKid][creator_site]
 
 [creator_site]: http://ethandavidson.com
 [demo_url]: https://api-ethandavidson-com.herokuapp.com
+[client_repo]: https://github.com/EthanThatOneKid/ethandavidson
