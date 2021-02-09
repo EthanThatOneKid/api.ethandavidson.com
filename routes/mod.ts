@@ -3,6 +3,7 @@ import type { RouterContext } from "../deps.ts";
 
 import aboutRoute from "./about/mod.ts";
 import experienceRoute from "./experience/mod.ts";
+import reposRoute from "./repos/mod.ts";
 import projectsRoute, { getProjectFromSlug } from "./projects/mod.ts";
 
 const indexRoute = new Router().get("/", (ctx: RouterContext) => {
@@ -16,9 +17,6 @@ export const routers: Router[] = [
   indexRoute,
   aboutRoute,
   experienceRoute,
+  reposRoute,
   projectsRoute,
 ];
-
-// export const getRoutes = () => {
-//   // https://github.com/joelnet/cloudflare-worker-website/blob/master/src/lib/auto-routes.js
-// }
