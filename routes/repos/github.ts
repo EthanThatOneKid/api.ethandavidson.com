@@ -1,8 +1,8 @@
-import { CACHE_PERIOD, GITHUB_HANDLE } from "../../shared/constants.ts";
-import { Repository, RepositoryTree } from "./shared.ts";
+import { CACHE_PERIOD, GITHUB_HANDLE } from "../../lib/constants.ts";
+import { Repository, RepositoryCache, RepositoryTreeCache } from "./shared.ts";
 
-const trees = new Map<string, RepositoryTree>(),
-  repositories = new Map<string, Repository>();
+const trees = new Map<string, RepositoryTreeCache>(),
+  repositories = new Map<string, RepositoryCache>();
 
 export const queries = {
   latestCommit: (repo: string) =>
@@ -13,9 +13,22 @@ export const queries = {
     `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}`,
 };
 
+const preparePayload = (
+  repo: RepositoryCache,
+  tree: RepositoryTreeCache,
+): Repository => ({
+  name: repo.name,
+  description: repo.description,
+  tree: {
+    path: tree.path,
+    directories: tree.directories.map(({ name }) => ({ name })),
+    files: tree.files.map(({ name, extension }) => ({ name, extension })),
+  },
+});
+
 export const getTree = async (
   path: string[],
-): Promise<RepositoryTree> => {
+): Promise<RepositoryTreeCache> => {
   const id = identifyPath(path),
     now = new Date().valueOf(),
     [repo] = path;
@@ -25,13 +38,14 @@ export const getTree = async (
       return tree;
     }
   }
-  const tree: RepositoryTree = await fetch(queries.latestCommit(repo))
+  console.log("MADE GITHUB TREE CALL");
+  const tree: RepositoryTreeCache = await fetch(queries.latestCommit(repo))
     .then((res) => res.json())
     .then((data) => data[0].commit.tree.sha)
     .then((sha) => fetch(queries.tree(repo, sha)))
     .then((res) => res.json())
     .then((data) => {
-      const result: RepositoryTree = {
+      const result: RepositoryTreeCache = {
         path,
         expiration_date: generateExpirationDate(),
         directories: [],
@@ -41,25 +55,28 @@ export const getTree = async (
         if (type === "tree") {
           result.directories.push({ name, sha });
         } else {
-          result.files.push({ name, sha });
+          const extension = name.split(".").pop();
+          result.files.push({ name, extension, sha });
         }
       }
       return result;
     });
-  trees.set(id, tree);
+  trees.set(id, { ...tree });
   return tree;
 };
 
-export const getRepo = async (path: string[]): Promise<Repository> => {
+export const getRepo = async (
+  path: string[],
+): Promise<Repository> => {
   const now = new Date().valueOf(), [repo] = path;
   if (repositories.has(repo)) {
-    const payload = repositories.get(repo);
-    if (payload !== undefined && payload.expiration_date > now) {
-      payload.tree = await getTree(path);
-      return payload;
+    const cachedRepo = repositories.get(repo);
+    if (cachedRepo !== undefined && cachedRepo.expiration_date > now) {
+      return preparePayload(cachedRepo, await getTree(path));
     }
   }
-  const payload: Repository = await fetch(queries.repo(repo))
+  console.log("MADE GITHUB REPO CALL");
+  const payload: RepositoryCache = await fetch(queries.repo(repo))
     .then((res) => res.json())
     .then((data) => ({
       name: repo,
@@ -67,8 +84,7 @@ export const getRepo = async (path: string[]): Promise<Repository> => {
       expiration_date: generateExpirationDate(),
     }));
   repositories.set(repo, { ...payload });
-  payload.tree = await getTree(path);
-  return payload;
+  return preparePayload(payload, await getTree(path));
 };
 
 const identifyPath = (path: string[]): string => path.join("/");

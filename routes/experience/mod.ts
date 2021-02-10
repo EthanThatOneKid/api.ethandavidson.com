@@ -1,5 +1,5 @@
-import { createCollectionRouter } from "../../shared/createCollectionRoute.ts";
-import type ApproxDate from "../../shared/interfaces/ApproxDate.ts";
+import { createCollectionRouter } from "../../lib/createCollectionRoute.ts";
+import type ApproxDate from "../../lib/interfaces/ApproxDate.ts";
 
 export interface Experience {
   slug: string;

@@ -1,6 +1,6 @@
 import { Application } from "./deps.ts";
 import { routers } from "./routes/mod.ts";
-import { PORT } from "./shared/constants.ts";
+import { PORT } from "./lib/constants.ts";
 
 const app = new Application();
 

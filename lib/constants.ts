@@ -25,7 +25,10 @@ export const TWITTER_BEARER_TOKEN = String(
 //   env["DISCORD_TOKEN"] || Deno.env.get("DISCORD_TOKEN"),
 // );
 
-export const CACHE_PERIOD = 1e3 * 60 * 60 * 24;
+const MINUTE = 1e3 * 60,
+  HOUR = MINUTE * 60,
+  DAY = HOUR * 24;
+export const CACHE_PERIOD = DAY;
 
 for (
   const [name, value] of Object.entries(

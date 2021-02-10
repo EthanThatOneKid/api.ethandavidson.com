@@ -5,12 +5,13 @@ import { getRepo } from "./github.ts";
 const reposRoute = new Router()
   .get("/repos/:repo", async (ctx: RouterContext) => {
     const { repo } = ctx.params;
-    console.log({ ctx });
+    console.log({ repo });
+    // console.log({ ctx });
     if (repo === undefined) {
       ctx.response.body = {};
     } else {
       const payload = await getRepo([repo]);
-      console.log({ payload });
+      // console.log({ payload });
       ctx.response.body = { ...payload };
     }
   });

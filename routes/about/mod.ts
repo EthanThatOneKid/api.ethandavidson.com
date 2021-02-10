@@ -1,7 +1,7 @@
 import { Router } from "../../deps.ts";
 import type { RouterContext } from "../../deps.ts";
-import { getTwitterProfile } from "../../shared/twitterClient.ts";
-import { GITHUB_HANDLE, TWITTER_HANDLE } from "../../shared/constants.ts";
+import { getTwitterProfile } from "../../lib/twitterClient.ts";
+import { GITHUB_HANDLE, TWITTER_HANDLE } from "../../lib/constants.ts";
 
 export interface About {
   bio: string;
