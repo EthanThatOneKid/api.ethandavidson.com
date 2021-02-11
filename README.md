@@ -1,4 +1,4 @@
-# api.ethandavidson.com ✨
+# api.ethandavidson.com [✨][github_application]
 
 [![Heroku App Status](http://heroku-shields.herokuapp.com/api-ethandavidson-com)][demo_url]
 
@@ -23,3 +23,4 @@ Engineered with 🦕 by [EthanThatOneKid][creator_site]
 [creator_site]: http://ethandavidson.com
 [demo_url]: https://api-ethandavidson-com.herokuapp.com
 [client_repo]: https://github.com/EthanThatOneKid/ethandavidson
+[github_application]: https://github.com/settings/applications/1474573
