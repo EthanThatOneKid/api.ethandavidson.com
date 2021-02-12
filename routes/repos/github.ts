@@ -26,43 +26,87 @@ const preparePayload = (
   },
 });
 
-export const getTree = async (
-  path: string[],
-): Promise<RepositoryTreeCache> => {
-  const id = identifyPath(path),
-    now = new Date().valueOf(),
-    [repo] = path;
-  if (trees.has(id)) {
-    const tree = trees.get(id);
-    if (tree !== undefined && tree.expiration_date > now) {
-      return tree;
+const createCachedTree = (data: any, path: string[]) => {
+  const result: RepositoryTreeCache = {
+    path,
+    expiration_date: generateExpirationDate(),
+    directories: [],
+    files: [],
+  };
+  for (const { type, sha, path: name } of data.tree) {
+    if (type === "tree") {
+      result.directories.push({ name, sha });
+    } else {
+      const extension = name.split(".").pop();
+      result.files.push({ name, extension, sha });
     }
   }
-  console.log("MADE GITHUB TREE CALL");
-  const tree: RepositoryTreeCache = await fetch(queries.latestCommit(repo))
+  return result;
+};
+
+const findClosestCachedTree = (
+  path: string[],
+): { closestCachedTree: RepositoryTreeCache; pathTrace: string[] } | null => {
+  const now = new Date().valueOf();
+  const pathTrace: string[] = [];
+  while (path.length > 0) {
+    const id = identifyPath(path);
+    if (trees.has(id)) {
+      const tree = trees.get(id);
+      if (tree !== undefined && tree.expiration_date > now) {
+        return { closestCachedTree: tree, pathTrace };
+      }
+    }
+    const nextTrace = path.pop();
+    if (nextTrace !== undefined) {
+      pathTrace.unshift(nextTrace);
+    }
+  }
+  return null;
+};
+
+const getTreeFromRoot = async (
+  repo: string,
+  relativePath: string[],
+  root: RepositoryTreeCache,
+): Promise<RepositoryTreeCache | null> => {
+  const fullPath = [...root.path];
+  while (relativePath.length > 0) {
+    const targetEntry = relativePath.shift();
+    const nextEntry = [...root.files, ...root.directories]
+      .find(({ name }) => name === targetEntry);
+    if (nextEntry !== undefined) {
+      fullPath.push(nextEntry.name);
+      root = await fetch(queries.tree(repo, nextEntry.sha))
+        .then((res) => res.json())
+        .then((data) => createCachedTree(data, fullPath));
+      trees.set(identifyPath(fullPath), { ...root });
+      console.log({ root });
+    } else {
+      return null;
+    }
+  }
+  return root;
+};
+
+const getRootRepositoryTree = async (repo: string) => {
+  return await fetch(queries.latestCommit(repo))
     .then((res) => res.json())
     .then((data) => data[0].commit.tree.sha)
     .then((sha) => fetch(queries.tree(repo, sha)))
     .then((res) => res.json())
-    .then((data) => {
-      const result: RepositoryTreeCache = {
-        path,
-        expiration_date: generateExpirationDate(),
-        directories: [],
-        files: [],
-      };
-      for (const { type, sha, path: name } of data.tree) {
-        if (type === "tree") {
-          result.directories.push({ name, sha });
-        } else {
-          const extension = name.split(".").pop();
-          result.files.push({ name, extension, sha });
-        }
-      }
-      return result;
-    });
-  trees.set(id, { ...tree });
-  return tree;
+    .then((data) => createCachedTree(data, [repo]));
+};
+
+export const getTree = async (
+  path: string[],
+): Promise<RepositoryTreeCache> => {
+  const [repo] = path;
+  const { closestCachedTree, pathTrace } = findClosestCachedTree(path);
+  const root = closestCachedTree !== undefined
+    ? closestCachedTree
+    : await getRootRepositoryTree(repo);
+  const tree = await getTreeFromRoot(repo, relativePath, closestCachedTree);
 };
 
 export const getRepo = async (
