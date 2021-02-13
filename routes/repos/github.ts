@@ -46,7 +46,7 @@ const createCachedTree = (data: any, path: string[]) => {
 
 const findClosestCachedTree = (
   path: string[],
-): [RepositoryTreeCache | null, string[] ] | null => {
+): [RepositoryTreeCache | null, string[]] => {
   const now = new Date().valueOf();
   const pathTrace: string[] = [];
   while (path.length > 0) {
@@ -54,7 +54,7 @@ const findClosestCachedTree = (
     if (trees.has(id)) {
       const tree = trees.get(id);
       if (tree !== undefined && tree.expiration_date > now) {
-        return [ tree, pathTrace ];
+        return [tree, pathTrace];
       }
     }
     const nextTrace = path.pop();
@@ -102,11 +102,14 @@ export const getTree = async (
   path: string[],
 ): Promise<RepositoryTreeCache> => {
   const [repo] = path;
-  const { closestCachedTree, pathTrace } = findClosestCachedTree(path);
-  const root = closestCachedTree !== undefined
-    ? closestCachedTree
-    : await getRootRepositoryTree(repo);
-  const tree = await getTreeFromRoot(repo, relativePath, closestCachedTree);
+  const [closestCachedTree, pathTrace] = findClosestCachedTree(path);
+  if (closestCachedTree !== null) {
+    const tree = await getTreeFromRoot(repo, pathTrace, closestCachedTree);
+    if (tree !== null) {
+      return tree;
+    }
+  }
+  return await getRootRepositoryTree(repo);
 };
 
 export const getRepo = async (
