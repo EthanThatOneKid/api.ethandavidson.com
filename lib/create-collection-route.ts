@@ -1,5 +1,5 @@
-import { Router } from "../deps.ts";
-import type { RouterContext } from "../deps.ts";
+import { Router } from "../deps/oak.ts";
+import type { RouterContext } from "../deps/oak.ts";
 
 export const createCollectionRouter = <Data extends { slug: string }>(
   collectionName: string,

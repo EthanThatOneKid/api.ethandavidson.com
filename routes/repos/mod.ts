@@ -1,5 +1,5 @@
-import { Router } from "../../deps.ts";
-import type { RouterContext } from "../../deps.ts";
+import { Router } from "../../deps/oak.ts";
+import type { RouterContext } from "../../deps/oak.ts";
 import { getRepo } from "./github.ts";
 
 const reposRoute = new Router()

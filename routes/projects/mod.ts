@@ -1,4 +1,4 @@
-import { createCollectionRouter } from "../../lib/createCollectionRoute.ts";
+import { createCollectionRouter } from "../../lib/create-collection-route.ts";
 import { ProjectTag } from "./tags/mod.ts";
 
 export interface Project {

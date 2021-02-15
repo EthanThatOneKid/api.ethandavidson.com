@@ -1,5 +1,5 @@
-import { createCollectionRouter } from "../../lib/createCollectionRoute.ts";
-import ApproxDate from "../../lib/interfaces/ApproxDate.ts";
+import { createCollectionRouter } from "../../lib/create-collection-route.ts";
+import ApproxDate from "../../lib/approx-date.ts";
 
 export interface WishlistItem {
   slug: string;

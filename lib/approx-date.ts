@@ -1,3 +1,7 @@
+// File Name:   approx-date.ts
+// Description: Exports interface that describes
+//              an approximate time in history.
+
 type ApproxDate = "PRESENT" | {
   year: number;
   month:

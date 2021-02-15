@@ -1,4 +1,4 @@
-import { Application } from "./deps.ts";
+import { Application } from "./deps/oak.ts";
 import { routers } from "./routes/mod.ts";
 import { PORT } from "./lib/constants.ts";
 

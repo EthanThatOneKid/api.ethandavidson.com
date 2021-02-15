@@ -1,4 +1,4 @@
-import { config } from "../deps.ts";
+import { config } from "../deps/dotenv.ts";
 
 const env: Record<string, string> = config();
 
