@@ -14,9 +14,8 @@ const idRoute = new Router()
         ctx.response.body = { verification };
       }
     } else {
-      ctx.response.redirect(
-        queries.authorize(),
-      );
+      const [url] = queries.authorize();
+      ctx.response.redirect(url);
     }
   });
 

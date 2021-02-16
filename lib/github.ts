@@ -9,34 +9,65 @@ const trees = new Map<string, RepositoryTreeCache>(),
   repositories = new Map<string, RepositoryCache>();
 
 export const queries = {
-  latestCommit: (repo: string) =>
+  latestCommit: (
+    repo: string,
+    accessToken?: string,
+  ): [string, RequestInit] => [
     `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/commits?per_page=1`,
-  tree: (repo: string, sha: string) =>
+    createQueryAuthorization(accessToken || null),
+  ],
+  tree: (
+    repo: string,
+    sha: string,
+    accessToken?: string,
+  ): [string, RequestInit] => [
     `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/git/trees/${sha}`,
-  repo: (repo: string) =>
+    createQueryAuthorization(accessToken || null),
+  ],
+  repo: (
+    repo: string,
+    accessToken?: string,
+  ): [string, RequestInit] => [
     `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}`,
-  user: () => `https://api.github.com/user`,
-  authorize: () =>
+    createQueryAuthorization(accessToken || null),
+  ],
+  user: (accessToken?: string): [
+    string,
+    RequestInit,
+  ] => [
+    `https://api.github.com/user`,
+    createQueryAuthorization(accessToken || null),
+  ],
+  authorize: (accessToken?: string): [
+    string,
+    RequestInit,
+  ] => [
     `https://github.com/login/oauth/authorize?client_id=${GITHUB_APP_ID}`,
-  accessToken: (code: string) => {
+    createQueryAuthorization(accessToken || null),
+  ],
+  accessToken: (code: string): [string, RequestInit] => {
     const params = new URLSearchParams();
     params.append("client_id", GITHUB_APP_ID);
     params.append("client_secret", GITHUB_APP_SECRET);
     params.append("code", code);
-    return `https://github.com/login/oauth/access_token?${params}`;
+    return [
+      `https://github.com/login/oauth/access_token?${params}`,
+      { method: "POST" },
+    ];
   },
 };
 
 const preparePayload = (
   repo: RepositoryCache,
-  tree: RepositoryTreeCache,
+  tree: RepositoryTreeCache | null,
 ): Repository => ({
   name: repo.name,
   description: repo.description,
-  tree: {
+  tree: tree === null ? null : {
     path: tree.path,
     directories: tree.directories.map(({ name }) => ({ name })),
-    files: tree.files.map(({ name, extension }) => ({ name, extension })),
+    files: tree.files.map(({ name }) => parseFilename(name)),
+    hasReadme: detectReadme(tree.path[tree.path.length - 1]),
   },
 });
 
@@ -51,8 +82,8 @@ const createCachedTree = (data: any, path: string[]) => {
     if (type === "tree") {
       result.directories.push({ name, sha });
     } else {
-      const extension = name.split(".").pop();
-      result.files.push({ name, extension, sha });
+      const { extension } = parseFilename(name);
+      result.files.push({ name, sha });
     }
   }
   return result;
@@ -84,6 +115,9 @@ const getTreeFromRoot = async (
   relativePath: string[],
   root: RepositoryTreeCache,
 ): Promise<RepositoryTreeCache | null> => {
+  if (relativePath.length < 1) {
+    return root;
+  }
   const fullPath = [...root.path];
   while (relativePath.length > 0) {
     const targetEntry = relativePath.shift();
@@ -91,11 +125,11 @@ const getTreeFromRoot = async (
       .find(({ name }) => name === targetEntry);
     if (nextEntry !== undefined) {
       fullPath.push(nextEntry.name);
-      root = await fetch(queries.tree(repo, nextEntry.sha))
+      root = await fetch(...queries.tree(repo, nextEntry.sha))
         .then((res) => res.json())
         .then((data) => createCachedTree(data, fullPath));
-      trees.set(identifyPath(fullPath), { ...root });
       console.log({ root });
+      trees.set(identifyPath(fullPath), { ...root });
     } else {
       return null;
     }
@@ -104,40 +138,52 @@ const getTreeFromRoot = async (
 };
 
 const getRootRepositoryTree = async (repo: string) => {
-  return await fetch(queries.latestCommit(repo))
+  const root = await fetch(...queries.latestCommit(repo))
     .then((res) => res.json())
-    .then((data) => data[0].commit.tree.sha)
-    .then((sha) => fetch(queries.tree(repo, sha)))
+    .then((data) => {
+      return data[0].commit.tree.sha;
+    })
+    .then((sha) => fetch(...queries.tree(repo, sha)))
     .then((res) => res.json())
     .then((data) => createCachedTree(data, [repo]));
+  trees.set(repo, root);
+  return root;
 };
 
 export const getTree = async (
   path: string[],
-): Promise<RepositoryTreeCache> => {
+): Promise<RepositoryTreeCache | null> => {
   const [repo] = path;
-  const [closestCachedTree, pathTrace] = findClosestCachedTree(path);
+  const [closestCachedTree, pathTrace] = findClosestCachedTree([...path]);
   if (closestCachedTree !== null) {
     const tree = await getTreeFromRoot(repo, pathTrace, closestCachedTree);
     if (tree !== null) {
+      console.log("READ CACHED TREE!!");
       return tree;
     }
   }
-  return await getRootRepositoryTree(repo);
+  const root = await getRootRepositoryTree(repo);
+  if (path.length < 2) {
+    return root;
+  }
+  const relativePath = path.slice(1);
+  // console.log({ repo, relativePath, root });
+  return await getTreeFromRoot(repo, relativePath, root);
 };
 
 export const getRepo = async (
   path: string[],
 ): Promise<Repository> => {
-  const now = new Date().valueOf(), [repo] = path;
+  const now = new Date().valueOf(),
+    [repo] = path,
+    tree = await getTree([...path]);
   if (repositories.has(repo)) {
     const cachedRepo = repositories.get(repo);
     if (cachedRepo !== undefined && cachedRepo.expiration_date > now) {
-      return preparePayload(cachedRepo, await getTree(path));
+      return preparePayload(cachedRepo, tree);
     }
   }
-  console.log("MADE GITHUB REPO CALL");
-  const payload: RepositoryCache = await fetch(queries.repo(repo))
+  const payload: RepositoryCache = await fetch(...queries.repo(repo))
     .then((res) => res.json())
     .then((data) => ({
       name: repo,
@@ -145,13 +191,12 @@ export const getRepo = async (
       expiration_date: generateExpirationDate(),
     }));
   repositories.set(repo, { ...payload });
-  return preparePayload(payload, await getTree(path));
+  return preparePayload(payload, tree);
 };
 
 export const verifyCode = async (code: string): Promise<string | null> => {
   const accessTokenPayload = await fetch(
-    queries.accessToken(code),
-    { method: "POST" },
+    ...queries.accessToken(code),
   ).then((res) => res.text());
   const accessToken = new URLSearchParams(accessTokenPayload)
     .get("access_token");
@@ -159,15 +204,9 @@ export const verifyCode = async (code: string): Promise<string | null> => {
 };
 
 export const verifyUser = async (code: string): Promise<GitHubUser> => {
-  const accessToken = await verifyCode(code);
-  const userPayload = await fetch(
-    queries.user(),
-    {
-      headers: new Headers({
-        "Authorization": `Bearer ${accessToken}`,
-      }),
-    },
-  ).then((res) => res.json());
+  const accessToken = await verifyCode(code) || undefined;
+  const userPayload = await fetch(...queries.user(accessToken))
+    .then((res) => res.json());
   return { ...userPayload };
 };
 
@@ -179,10 +218,39 @@ const generateExpirationDate = (): number => {
   return now.valueOf();
 };
 
+const createQueryAuthorization = (
+  accessToken: string | null,
+): RequestInit => (accessToken === null ? {} : {
+  headers: new Headers({
+    "Authorization": `Bearer ${accessToken}`,
+  }),
+});
+
+const parseFilename = (
+  filename: string,
+) =>
+  filename.split(".").reduce(
+    ({ name, extension }, segment, index, { length }) => {
+      if (index === 0) {
+        return { name: segment, extension: null };
+      } else if (index === length - 1) {
+        return { name, extension: segment };
+      }
+      return { name: [name, segment].join("."), extension };
+    },
+    {} as { name: string; extension: string | null },
+  );
+
+const detectReadme = (filename: string): boolean => {
+  const { name, extension } = parseFilename(filename);
+  return (extension !== null && /md|txt/i.test(extension)) &&
+    /README/i.test(name);
+};
+
 export interface Repository {
   name: string;
   description: string;
-  tree: RepositoryTree;
+  tree: RepositoryTree | null;
 }
 
 export interface RepositoryCache {
@@ -194,13 +262,14 @@ export interface RepositoryCache {
 export interface RepositoryTree {
   path: string[];
   directories: { name: string }[];
-  files: { name: string; extension: string }[];
+  files: { name: string; extension: string | null }[];
+  hasReadme: boolean;
 }
 
 export interface RepositoryTreeCache {
   path: string[];
   directories: { name: string; sha: string }[];
-  files: { name: string; extension: string; sha: string }[];
+  files: { name: string; sha: string }[];
   expiration_date: number;
 }
 
