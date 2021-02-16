@@ -8,6 +8,11 @@ To spin up the development server, execute `deno run --allow-net --allow-read --
 
 To test the client library, spin up the development server in one terminal instance (as above) and execute `deno test --allow-read --allow-net` in another terminal instance.
 
+### Scripts 📜
+
+- **Spin Up Server**: `deno run --allow-net --allow-read --allow-env mod.ts`
+- **Generate Documentation**: `deno run --allow-run scripts/docs.ts`
+
 ## Deployment 🚀
 
 ### Heroku 🀄
