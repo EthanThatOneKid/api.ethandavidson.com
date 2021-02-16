@@ -4,6 +4,9 @@ import {
   GITHUB_APP_SECRET,
   GITHUB_HANDLE,
 } from "./constants.ts";
+import createLogger from "./create-logger.ts";
+
+const log = createLogger();
 
 const trees = new Map<string, RepositoryTreeCache>(),
   repositories = new Map<string, RepositoryCache>();
@@ -104,15 +107,15 @@ const findClosestCachedTree = (
   const pathTrace: string[] = [];
   while (path.length > 0) {
     const id = identifyPath(path);
-    console.log(`SEARCH IN CACHE FOR ${id} TREE`);
+    log(`SEARCH IN CACHE FOR ${id} TREE`);
     if (trees.has(id)) {
       const tree = trees.get(id);
       if (tree !== undefined && tree.expiration_date > now) {
-        console.log(`FOUND ${id} TREE IN CACHE`);
+        log(`FOUND ${id} TREE IN CACHE`);
         return [tree, [...pathTrace]];
       }
     }
-    console.log(`CACHE NOT FOUND FOR ${id} TREE`);
+    log(`CACHE NOT FOUND FOR ${id} TREE`);
     const nextTrace = path.pop();
     if (nextTrace !== undefined) {
       pathTrace.unshift(nextTrace);
@@ -127,7 +130,7 @@ const getTreeFromRoot = async (
   root: RepositoryTreeCache,
 ): Promise<RepositoryTreeCache | null> => {
   if (relativePath.length < 1) {
-    console.log(`TREE IS ROOT (EMPTY RELATIVE PATH)`);
+    log(`TREE IS ROOT (EMPTY RELATIVE PATH)`);
     return root;
   }
   const fullPath = [...root.path];
@@ -141,7 +144,7 @@ const getTreeFromRoot = async (
         .then((res) => res.json())
         .then((data) => createCachedTree(data, fullPath));
       trees.set(identifyPath(fullPath), { ...root });
-      console.log(`CACHED ${identifyPath(root.path)} TREE`);
+      log(`CACHED ${identifyPath(root.path)} TREE`);
     } else {
       return null;
     }
@@ -159,7 +162,7 @@ const getRootRepositoryTree = async (repo: string) => {
     .then((res) => res.json())
     .then((data) => createCachedTree(data, [repo]));
   trees.set(repo, root);
-  console.log(`CACHED ${identifyPath(root.path)} TREE`);
+  log(`CACHED ${identifyPath(root.path)} TREE`);
   return root;
 };
 
