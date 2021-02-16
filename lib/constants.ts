@@ -8,6 +8,14 @@ export const GITHUB_HANDLE = String(
   env["GITHUB_HANDLE"] || Deno.env.get("GITHUB_HANDLE"),
 );
 
+export const GITHUB_APP_ID = String(
+  env["GITHUB_APP_ID"] || Deno.env.get("GITHUB_APP_ID"),
+);
+
+export const GITHUB_APP_SECRET = String(
+  env["GITHUB_APP_SECRET"] || Deno.env.get("GITHUB_APP_SECRET"),
+);
+
 export const TWITTER_HANDLE = String(
   env["TWITTER_HANDLE"] || Deno.env.get("TWITTER_HANDLE"),
 );
@@ -35,6 +43,8 @@ for (
     {
       PORT,
       GITHUB_HANDLE,
+      GITHUB_APP_ID,
+      GITHUB_APP_SECRET,
       TWITTER_HANDLE,
       TWITTER_BEARER_TOKEN,
       // DISCORD_ID,

@@ -1,6 +1,6 @@
 import { Router } from "../../deps/oak.ts";
 import type { RouterContext } from "../../deps/oak.ts";
-import { getRepo } from "./github.ts";
+import { getRepo } from "../../lib/github.ts";
 
 const reposRoute = new Router()
   .get("/repos/:path(.+)", async (ctx: RouterContext) => {
@@ -17,6 +17,5 @@ const reposRoute = new Router()
     ctx.response.body = { ...payload };
   });
 
-// Todo: Use the `use` middleware method to capture all requests to this route.
 // Todo: Prefixing repo name with `~` returns the raw text data if path leads to file.
 export default reposRoute;

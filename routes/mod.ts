@@ -6,6 +6,7 @@ import experienceRoute from "./experience/mod.ts";
 import reposRoute from "./repos/mod.ts";
 import projectsRoute from "./projects/mod.ts";
 import wishlistRoute from "./wishlist/mod.ts";
+import idRoute from "./id/mod.ts";
 
 const indexRoute = new Router()
   .get("/", (ctx: RouterContext) => {
@@ -21,4 +22,5 @@ export const routers: Router[] = [
   reposRoute,
   projectsRoute,
   wishlistRoute,
+  idRoute,
 ];
