@@ -2,6 +2,8 @@
 
 Welcome to `/repos`!
 
+![`api.ethandavidson.com/repos` Demo](../../docs/media/demo.gif)
+
 ## Making the Most of Rate-Limiting
 
 The public GitHub API is rate-limited which means that after making several requests, the API will stop working.
