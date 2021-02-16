@@ -1,6 +1,7 @@
 import { Router } from "../../deps/oak.ts";
 import type { RouterContext } from "../../deps/oak.ts";
 import { getRepo } from "../../lib/github.ts";
+import { MAX_HANG_TIME } from "../../lib/constants.ts";
 
 const reposRoute = new Router()
   .get("/repos/:path(.+)", async (ctx: RouterContext) => {
@@ -17,7 +18,11 @@ const reposRoute = new Router()
     }
     try {
       console.log(`AWAITING ${path.join("/")} TREE`);
+      const timeoutId = setTimeout(() => {
+        throw new Error("HANGTIME REACHED");
+      }, MAX_HANG_TIME);
       const payload = await getRepo(path);
+      clearTimeout(timeoutId);
       ctx.response.body = { ...payload };
     } catch (err) {
       console.error(err);

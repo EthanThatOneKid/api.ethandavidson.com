@@ -104,20 +104,20 @@ const findClosestCachedTree = (
   const pathTrace: string[] = [];
   while (path.length > 0) {
     const id = identifyPath(path);
+    console.log(`SEARCH IN CACHE FOR ${id} TREE`);
     if (trees.has(id)) {
-      console.log(`SEARCH IN CACHE FOR TREE, ${id}`);
       const tree = trees.get(id);
       if (tree !== undefined && tree.expiration_date > now) {
-        console.log(`FOUND TREE IN CACHE, ${id}`);
+        console.log(`FOUND ${id} TREE IN CACHE`);
         return [tree, [...pathTrace]];
       }
     }
-    const nextTrace = path[path.length - 1];
+    console.log(`CACHE NOT FOUND FOR ${id} TREE`);
+    const nextTrace = path.pop();
     if (nextTrace !== undefined) {
       pathTrace.unshift(nextTrace);
     }
   }
-  console.log(`NO CACHE FOR ${identifyPath(path)} EXISTS`);
   return [null, []];
 };
 
@@ -141,7 +141,7 @@ const getTreeFromRoot = async (
         .then((res) => res.json())
         .then((data) => createCachedTree(data, fullPath));
       trees.set(identifyPath(fullPath), { ...root });
-      console.log(`CACHED ${identifyPath(root.path)}`);
+      console.log(`CACHED ${identifyPath(root.path)} TREE`);
     } else {
       return null;
     }
@@ -159,7 +159,7 @@ const getRootRepositoryTree = async (repo: string) => {
     .then((res) => res.json())
     .then((data) => createCachedTree(data, [repo]));
   trees.set(repo, root);
-  console.log(`CACHED ${identifyPath(root.path)}`);
+  console.log(`CACHED ${identifyPath(root.path)} TREE`);
   return root;
 };
 

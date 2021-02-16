@@ -37,6 +37,7 @@ const MINUTE = 1e3 * 60,
   HOUR = MINUTE * 60,
   DAY = HOUR * 24;
 export const CACHE_PERIOD = DAY;
+export const MAX_HANG_TIME = MINUTE / 2;
 
 for (
   const [name, value] of Object.entries(
