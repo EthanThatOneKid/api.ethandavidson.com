@@ -16,6 +16,7 @@ const reposRoute = new Router()
       return;
     }
     try {
+      console.log(`AWAITING ${path.join("/")} TREE`);
       const payload = await getRepo(path);
       ctx.response.body = { ...payload };
     } catch (err) {
