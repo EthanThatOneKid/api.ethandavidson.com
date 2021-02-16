@@ -23,12 +23,12 @@ Not only does this increase the efficiency of my API, but also heavily cuts the 
 ## The *GitHub Trees* Algorithm
 
 A GitHub tree can be identified as such: `/react/packages/react-devtools`; basically a path in a specific repository.
-GitHub trees are cached/retrieved with perfect efficiency.
+In my API, GitHub trees are cached/retrieved with perfect efficiency.
 Let's walk through an example:
 
 ## Example #1
 
-Let's say we are testing the cache system on the [React GitHub repository](https://github.com/facebook/react/).
+Let's say we are testing the cache system on the [React repository](https://github.com/facebook/react/).
 Let's also say that each test is ran sequentially without ending the program.
 
 ### Test #1: Navigate to `/react/packages/react-devtools`
