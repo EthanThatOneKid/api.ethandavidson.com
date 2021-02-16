@@ -65,7 +65,7 @@ const preparePayload = (
     name: repo.name,
     description: repo.description,
     tree: tree === null ? null : {
-      path: tree.path,
+      path: [...tree.path],
       directories: tree.directories.map(({ name }) => ({ name })),
       files: tree.files.map(({ name }) => ({
         name,
@@ -82,7 +82,7 @@ const preparePayload = (
 
 const createCachedTree = (data: any, path: string[]) => {
   const result: RepositoryTreeCache = {
-    path,
+    path: [...path],
     expiration_date: generateExpirationDate(),
     directories: [],
     files: [],
@@ -105,16 +105,19 @@ const findClosestCachedTree = (
   while (path.length > 0) {
     const id = identifyPath(path);
     if (trees.has(id)) {
+      console.log(`SEARCH IN CACHE FOR TREE, ${id}`);
       const tree = trees.get(id);
       if (tree !== undefined && tree.expiration_date > now) {
-        return [tree, pathTrace];
+        console.log(`FOUND TREE IN CACHE, ${id}`);
+        return [tree, [...pathTrace]];
       }
     }
-    const nextTrace = path.pop();
+    const nextTrace = path[path.length - 1];
     if (nextTrace !== undefined) {
       pathTrace.unshift(nextTrace);
     }
   }
+  console.log(`NO CACHE FOR ${identifyPath(path)} EXISTS`);
   return [null, []];
 };
 
@@ -124,6 +127,7 @@ const getTreeFromRoot = async (
   root: RepositoryTreeCache,
 ): Promise<RepositoryTreeCache | null> => {
   if (relativePath.length < 1) {
+    console.log(`TREE IS ROOT (EMPTY RELATIVE PATH)`);
     return root;
   }
   const fullPath = [...root.path];
@@ -136,8 +140,8 @@ const getTreeFromRoot = async (
       root = await fetch(...queries.tree(repo, nextEntry.sha))
         .then((res) => res.json())
         .then((data) => createCachedTree(data, fullPath));
-      console.log("MADE TREE REQ", { root });
       trees.set(identifyPath(fullPath), { ...root });
+      console.log(`CACHED ${identifyPath(root.path)}`);
     } else {
       return null;
     }
@@ -155,6 +159,7 @@ const getRootRepositoryTree = async (repo: string) => {
     .then((res) => res.json())
     .then((data) => createCachedTree(data, [repo]));
   trees.set(repo, root);
+  console.log(`CACHED ${identifyPath(root.path)}`);
   return root;
 };
 
@@ -164,9 +169,8 @@ export const getTree = async (
   const [repo] = path;
   const [closestCachedTree, pathTrace] = findClosestCachedTree([...path]);
   if (closestCachedTree !== null) {
-    const tree = await getTreeFromRoot(repo, pathTrace, closestCachedTree);
+    const tree = await getTreeFromRoot(repo, [...pathTrace], closestCachedTree);
     if (tree !== null) {
-      console.log("READ CACHED TREE!!");
       return tree;
     }
   }
@@ -175,8 +179,7 @@ export const getTree = async (
     return root;
   }
   const relativePath = path.slice(1);
-  // console.log({ repo, relativePath, root });
-  return await getTreeFromRoot(repo, relativePath, root);
+  return await getTreeFromRoot(repo, [...relativePath], root);
 };
 
 export const getRepo = async (
