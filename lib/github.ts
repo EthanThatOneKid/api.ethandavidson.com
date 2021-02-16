@@ -61,13 +61,22 @@ const preparePayload = (
   repo: RepositoryCache,
   tree: RepositoryTreeCache | null,
 ): Repository => ({
-  name: repo.name,
-  description: repo.description,
-  tree: tree === null ? null : {
-    path: tree.path,
-    directories: tree.directories.map(({ name }) => ({ name })),
-    files: tree.files.map(({ name }) => parseFilename(name)),
-    hasReadme: detectReadme(tree.path[tree.path.length - 1]),
+  ...{
+    name: repo.name,
+    description: repo.description,
+    tree: tree === null ? null : {
+      path: tree.path,
+      directories: tree.directories.map(({ name }) => ({ name })),
+      files: tree.files.map(({ name }) => ({
+        name,
+        extension: parseFilename(name).extension,
+      })),
+      hasReadme: tree.files.some(({ name: completeFilename }) => {
+        const { name, extension } = parseFilename(completeFilename);
+        return (extension !== null && /md|txt/i.test(extension)) &&
+          /README/i.test(name);
+      }),
+    },
   },
 });
 
@@ -82,7 +91,6 @@ const createCachedTree = (data: any, path: string[]) => {
     if (type === "tree") {
       result.directories.push({ name, sha });
     } else {
-      const { extension } = parseFilename(name);
       result.files.push({ name, sha });
     }
   }
@@ -128,7 +136,7 @@ const getTreeFromRoot = async (
       root = await fetch(...queries.tree(repo, nextEntry.sha))
         .then((res) => res.json())
         .then((data) => createCachedTree(data, fullPath));
-      console.log({ root });
+      console.log("MADE TREE REQ", { root });
       trees.set(identifyPath(fullPath), { ...root });
     } else {
       return null;
@@ -240,12 +248,6 @@ const parseFilename = (
     },
     {} as { name: string; extension: string | null },
   );
-
-const detectReadme = (filename: string): boolean => {
-  const { name, extension } = parseFilename(filename);
-  return (extension !== null && /md|txt/i.test(extension)) &&
-    /README/i.test(name);
-};
 
 export interface Repository {
   name: string;
