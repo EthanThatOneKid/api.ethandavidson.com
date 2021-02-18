@@ -1,6 +1,7 @@
 import { Router } from "../../deps/oak.ts";
 import type { RouterContext } from "../../deps/oak.ts";
 import { getRepo } from "../../lib/github.ts";
+import { Parse } from "../../lib/parse.ts";
 import { MAX_HANG_TIME } from "../../lib/constants.ts";
 
 const reposRoute = new Router()
@@ -9,9 +10,7 @@ const reposRoute = new Router()
     if (ctx.params.path === undefined) {
       return;
     }
-    const path = ctx.params.path
-        ?.split("/")
-        .filter(({ length }) => length > 0),
+    const path = Parse.path(ctx.params.path),
       [repo] = path;
     if (repo === undefined) {
       return;

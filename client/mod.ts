@@ -1,4 +1,5 @@
 import type { Experience, GitHubRepository, Project } from "../lib/types.ts";
+import { Format } from "../lib/format.ts";
 import { BASE_API } from "./lib/constants.ts";
 
 export interface EthanDavidsonConfig {
@@ -40,7 +41,7 @@ export default class EthanDavidson {
    * @example await ethan.repo("api.ethandavidson.com", "routes", "repos");
    */
   async repo(repo?: string, ...path: string[]): Promise<GitHubRepository[]> {
-    return await this.service("repo", [repo, ...path].join("/"));
+    return await this.service("repo", Format.path([repo, ...path]));
   }
 
   /**

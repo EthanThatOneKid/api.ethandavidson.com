@@ -4,7 +4,9 @@ import {
   GITHUB_APP_SECRET,
   GITHUB_HANDLE,
 } from "./constants.ts";
+import { Format } from "../lib/format.ts";
 import createLogger from "./create-logger.ts";
+import { Parse } from "./parse.ts";
 
 const log = createLogger();
 
@@ -72,10 +74,10 @@ const preparePayload = (
       directories: tree.directories.map(({ name }) => ({ name })),
       files: tree.files.map(({ name }) => ({
         name,
-        extension: parseFilename(name).extension,
+        extension: Parse.filename(name).extension,
       })),
       hasReadme: tree.files.some(({ name: completeFilename }) => {
-        const { name, extension } = parseFilename(completeFilename);
+        const { name, extension } = Parse.filename(completeFilename);
         return (extension !== null && /md|txt/i.test(extension)) &&
           /README/i.test(name);
       }),
@@ -106,7 +108,7 @@ const findClosestCachedTree = (
   const now = new Date().valueOf();
   const pathTrace: string[] = [];
   while (path.length > 0) {
-    const id = identifyPath(path);
+    const id = Format.path(path);
     log(`SEARCH IN CACHE FOR ${id} TREE`);
     if (trees.has(id)) {
       const tree = trees.get(id);
@@ -143,8 +145,8 @@ const getTreeFromRoot = async (
       root = await fetch(...queries.tree(repo, nextEntry.sha))
         .then((res) => res.json())
         .then((data) => createCachedTree(data, fullPath));
-      trees.set(identifyPath(fullPath), { ...root });
-      log(`CACHED ${identifyPath(root.path)} TREE`);
+      trees.set(Format.path(fullPath), { ...root });
+      log(`CACHED ${Format.path(root.path)} TREE`);
     } else {
       return null;
     }
@@ -162,7 +164,7 @@ const getRootRepositoryTree = async (repo: string) => {
     .then((res) => res.json())
     .then((data) => createCachedTree(data, [repo]));
   trees.set(repo, root);
-  log(`CACHED ${identifyPath(root.path)} TREE`);
+  log(`CACHED ${Format.path(root.path)} TREE`);
   return root;
 };
 
@@ -224,8 +226,6 @@ export const verifyUser = async (code: string): Promise<GitHubUser> => {
   return { ...userPayload };
 };
 
-const identifyPath = (path: string[]): string => path.join("/");
-
 const generateExpirationDate = (): number => {
   const now = new Date();
   now.setMilliseconds(CACHE_PERIOD);
@@ -239,21 +239,6 @@ const createQueryAuthorization = (
     "Authorization": `Bearer ${accessToken}`,
   }),
 });
-
-const parseFilename = (
-  filename: string,
-) =>
-  filename.split(".").reduce(
-    ({ name, extension }, segment, index, { length }) => {
-      if (index === 0) {
-        return { name: segment, extension: null };
-      } else if (index === length - 1) {
-        return { name, extension: segment };
-      }
-      return { name: [name, segment].join("."), extension };
-    },
-    {} as { name: string; extension: string | null },
-  );
 
 export interface GitHubRepository {
   name: string;
