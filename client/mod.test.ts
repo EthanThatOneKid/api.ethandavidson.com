@@ -1,11 +1,11 @@
-import { assertEquals } from "../dev.deps.ts";
+import { assertEquals } from "../deps/std.ts";
 import EthanDavidson from "./mod.ts";
 import { getProjectFromSlug, projects } from "../routes/projects/mod.ts";
 import {
   experiences,
   getExperienceFromSlug,
 } from "../routes/experience/mod.ts";
-import { PORT } from "../shared/constants.ts";
+import { PORT } from "../lib/constants.ts";
 
 const base_api = `http://localhost:${PORT}`;
 

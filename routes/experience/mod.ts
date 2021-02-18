@@ -33,6 +33,18 @@ export const experiences: Experience[] = [
       "I teach elementary to high school students how to code in Scratch, JavaScript, and Lua.",
   },
   {
+    slug: "tuffyhacks-head-of-tech",
+    title: "Head of Technology",
+    establishment: "TuffyHacks",
+    start_date: {
+      month: "Dec",
+      year: 2020,
+    },
+    end_date: "PRESENT",
+    info:
+      "I created and manage the official TuffyHacks (https://tuffyhacks.com/).",
+  },
+  {
     slug: "acm-csuf-webmaster",
     title: "Webmaster of ACM CSUF",
     establishment: "ACM CSUF",
