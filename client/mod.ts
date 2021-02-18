@@ -58,7 +58,7 @@ export default class EthanDavidson {
     if (path !== undefined) {
       // If a slug is used, then the API will return one item.
       // Since this function must return an array, we will
-      // swaddle the payload in an array.
+      // swaddle the payload in square brackets.
       return [payload];
     }
     return payload;
