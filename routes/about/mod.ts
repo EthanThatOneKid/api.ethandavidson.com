@@ -2,16 +2,7 @@ import { Router } from "../../deps/oak.ts";
 import type { RouterContext } from "../../deps/oak.ts";
 import { getTwitterProfile } from "../../lib/twitter-client.ts";
 import { GITHUB_HANDLE, TWITTER_HANDLE } from "../../lib/constants.ts";
-
-export interface About {
-  bio: string;
-  image_url: string;
-  twitter_handle: string;
-  twitter_url: string;
-  github_handle: string;
-  github_url: string;
-  current_activity: string;
-}
+import type { About } from "../../lib/types.ts";
 
 export default new Router()
   .get("/about", async (ctx: RouterContext) => {

@@ -1,14 +1,5 @@
 import { createCollectionRouter } from "../../lib/create-collection-route.ts";
-import type ApproxDate from "../../lib/approx-date.ts";
-
-export interface Experience {
-  slug: string;
-  title: string;
-  establishment: string | null;
-  info: string | null;
-  start_date: ApproxDate;
-  end_date: ApproxDate;
-}
+import type { Experience } from "../../lib/types.ts";
 
 export const getExperienceFromSlug = (query: string) =>
   experiences.find(({ slug }) => slug === query);

@@ -8,8 +8,8 @@ import createLogger from "./create-logger.ts";
 
 const log = createLogger();
 
-const trees = new Map<string, RepositoryTreeCache>(),
-  repositories = new Map<string, RepositoryCache>();
+const trees = new Map<string, GitHubRepositoryTreeCache>(),
+  repositories = new Map<string, GitHubRepositoryCache>();
 
 export const queries = {
   latestCommit: (
@@ -61,9 +61,9 @@ export const queries = {
 };
 
 const preparePayload = (
-  repo: RepositoryCache,
-  tree: RepositoryTreeCache | null,
-): Repository => ({
+  repo: GitHubRepositoryCache,
+  tree: GitHubRepositoryTreeCache | null,
+): GitHubRepository => ({
   ...{
     name: repo.name,
     description: repo.description,
@@ -84,7 +84,7 @@ const preparePayload = (
 });
 
 const createCachedTree = (data: any, path: string[]) => {
-  const result: RepositoryTreeCache = {
+  const result: GitHubRepositoryTreeCache = {
     path: [...path],
     expiration_date: generateExpirationDate(),
     directories: [],
@@ -102,7 +102,7 @@ const createCachedTree = (data: any, path: string[]) => {
 
 const findClosestCachedTree = (
   path: string[],
-): [RepositoryTreeCache | null, string[]] => {
+): [GitHubRepositoryTreeCache | null, string[]] => {
   const now = new Date().valueOf();
   const pathTrace: string[] = [];
   while (path.length > 0) {
@@ -127,8 +127,8 @@ const findClosestCachedTree = (
 const getTreeFromRoot = async (
   repo: string,
   relativePath: string[],
-  root: RepositoryTreeCache,
-): Promise<RepositoryTreeCache | null> => {
+  root: GitHubRepositoryTreeCache,
+): Promise<GitHubRepositoryTreeCache | null> => {
   if (relativePath.length < 1) {
     log(`TREE IS ROOT (EMPTY RELATIVE PATH)`);
     return root;
@@ -168,7 +168,7 @@ const getRootRepositoryTree = async (repo: string) => {
 
 export const getTree = async (
   path: string[],
-): Promise<RepositoryTreeCache | null> => {
+): Promise<GitHubRepositoryTreeCache | null> => {
   const [repo] = path;
   const [closestCachedTree, pathTrace] = findClosestCachedTree([...path]);
   if (closestCachedTree !== null) {
@@ -187,7 +187,7 @@ export const getTree = async (
 
 export const getRepo = async (
   path: string[],
-): Promise<Repository> => {
+): Promise<GitHubRepository> => {
   const now = new Date().valueOf(),
     [repo] = path,
     tree = await getTree([...path]);
@@ -197,7 +197,7 @@ export const getRepo = async (
       return preparePayload(cachedRepo, tree);
     }
   }
-  const payload: RepositoryCache = await fetch(...queries.repo(repo))
+  const payload: GitHubRepositoryCache = await fetch(...queries.repo(repo))
     .then((res) => res.json())
     .then((data) => ({
       name: repo,
@@ -255,26 +255,26 @@ const parseFilename = (
     {} as { name: string; extension: string | null },
   );
 
-export interface Repository {
+export interface GitHubRepository {
   name: string;
   description: string;
-  tree: RepositoryTree | null;
+  tree: GitHubRepositoryTree | null;
 }
 
-export interface RepositoryCache {
+export interface GitHubRepositoryCache {
   name: string;
   description: string;
   expiration_date: number;
 }
 
-export interface RepositoryTree {
+export interface GitHubRepositoryTree {
   path: string[];
   directories: { name: string }[];
   files: { name: string; extension: string | null }[];
   hasReadme: boolean;
 }
 
-export interface RepositoryTreeCache {
+export interface GitHubRepositoryTreeCache {
   path: string[];
   directories: { name: string; sha: string }[];
   files: { name: string; sha: string }[];

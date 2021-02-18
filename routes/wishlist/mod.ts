@@ -1,15 +1,5 @@
 import { createCollectionRouter } from "../../lib/create-collection-route.ts";
-import ApproxDate from "../../lib/approx-date.ts";
-
-export interface WishlistItem {
-  slug: string;
-  title: string;
-  link: string | null;
-  purchaseDetails: {
-    by: string;
-    when: ApproxDate;
-  } | null;
-}
+import { WishlistItem } from "../../lib/types.ts";
 
 export const getWishlistItemFromSlug = (query: string) =>
   wishlist.find(({ slug }) => slug === query);
