@@ -69,16 +69,27 @@ const prepareFilePayload = (data: GitHubFileCache): GitHubFile => {
 const prepareTreePayload = (
   data: GitHubRepositoryTreeCache,
 ): GitHubRepositoryTree => {
-  // const { path, directories, files } = data;
+  const path = [...data.path];
+  let readme = null;
+  const { name: readmeFilename } = data.files.find(checkIsReadme) ??
+    { name: null };
+  if (readmeFilename !== null) {
+    const id = Format.path([...data.path, readmeFilename]);
+    const readmeFileCache = files.get(id);
+    if (readmeFileCache !== undefined) {
+      log(`FOUND ${id} FILE IN CACHE`);
+      const { content } = readmeFileCache;
+      readme = markdownToHtml(atob(content));
+    }
+  }
   return {
-    path: [...data.path],
+    path,
+    readme,
     directories: data.directories.map(({ name }) => ({ name })),
-    files: data.files.map(({ name, size }) => ({
-      name,
-      size,
-      extension: Parse.filename(name).extension,
-    })),
-    hasReadme: data.files.some(checkIsReadme),
+    files: data.files.map(({ name, size }) => {
+      const { extension } = Parse.filename(name);
+      return { name, extension, size };
+    }),
   };
 };
 
@@ -104,7 +115,10 @@ const preparePayload = (
   };
 };
 
-const createCachedTree = (data: any, path: string[]) => {
+const createCachedTree = async (
+  data: any,
+  path: string[],
+): Promise<GitHubRepositoryTreeCache> => {
   const result: GitHubRepositoryTreeCache = {
     path: [...path],
     expiration_date: generateExpirationDate(),
@@ -129,9 +143,9 @@ const createCachedFile = (data: any, path: string[]): GitHubFileCache => ({
   expiration_date: generateExpirationDate(),
 });
 
-const findClosestCachedTree = (
+const findClosestCachedTreeOrFile = (
   path: string[],
-): [GitHubRepositoryTreeCache | null, string[]] => {
+): [GitHubRepositoryTreeCache | GitHubFileCache | null, string[]] => {
   const now = new Date().valueOf();
   const pathTrace: string[] = [];
   while (path.length > 0) {
@@ -142,6 +156,12 @@ const findClosestCachedTree = (
       if (tree !== undefined && tree.expiration_date > now) {
         log(`FOUND ${id} TREE IN CACHE`);
         return [tree, [...pathTrace]];
+      }
+    } else if (files.has(id)) {
+      const file = files.get(id);
+      if (file !== undefined && file.expiration_date > now) {
+        log(`FOUND ${id} FILE IN CACHE`);
+        return [file, [...pathTrace]];
       }
     }
     log(`CACHE NOT FOUND FOR ${id} TREE`);
@@ -159,7 +179,6 @@ const getTreeOrFileFromRoot = async (
   root: GitHubRepositoryTreeCache,
 ): Promise<GitHubRepositoryTreeCache | GitHubFileCache | null> => {
   if (relativePath.length < 1) {
-    log(`TREE IS ROOT (EMPTY RELATIVE PATH)`);
     return root;
   }
   const fullPath = [...root.path];
@@ -179,18 +198,30 @@ const getTreeOrFileFromRoot = async (
       )
         .then((res) => res.json())
         .then((data) => createCachedTree(data, fullPath));
+      const { name: readmeFilename } = root.files.find(checkIsReadme) ??
+        { name: null };
+      if (readmeFilename !== null) {
+        // If there is a README file in the directory,
+        // cache its contents for later use.
+        await getTreeOrFileFromRoot(
+          repo,
+          [readmeFilename],
+          { ...root },
+        );
+      }
       trees.set(Format.path(fullPath), { ...root });
       log(`CACHED ${Format.path(root.path)} TREE`);
     } else if (nextFile !== undefined) {
       fullPath.push(nextFile.name);
-      return await fetch(
-        ...queries.contents(
-          repo,
-          Format.path(fullPath.slice(1)),
-        ),
-      )
+      const file = await fetch(...queries.contents(
+        repo,
+        Format.path(fullPath.slice(1)),
+      ))
         .then((res) => res.json())
         .then((data) => createCachedFile(data, fullPath));
+      files.set(Format.path(fullPath), { ...file });
+      log(`CACHED ${Format.path(fullPath)} FILE`);
+      return file;
     } else {
       return null;
     }
@@ -211,12 +242,15 @@ export const getTree = async (
   path: string[],
 ): Promise<GitHubRepositoryTreeCache | GitHubFileCache | null> => {
   const [repo] = path;
-  const [closestCachedTree, pathTrace] = findClosestCachedTree([...path]);
-  if (closestCachedTree !== null) {
+  const [closestCachedTree, pathTrace] = findClosestCachedTreeOrFile([...path]);
+  if (
+    closestCachedTree !== null &&
+    !("content" in closestCachedTree)
+  ) {
     const tree = await getTreeOrFileFromRoot(
       repo,
       [...pathTrace],
-      closestCachedTree,
+      closestCachedTree as GitHubRepositoryTreeCache,
     );
     if (tree !== null) {
       return tree;
@@ -315,7 +349,7 @@ export interface GitHubRepositoryTree {
   path: string[];
   directories: { name: string }[];
   files: { name: string; extension: string | null; size: number }[];
-  hasReadme: boolean;
+  readme: string | null;
 }
 
 export interface GitHubRepositoryTreeCache {
