@@ -1,6 +1,6 @@
 import { Application } from "./deps/oak.ts";
 import { routers } from "./routes/mod.ts";
-import { PORT } from "./lib/constants.ts";
+import { MINUTE, PORT, RATE_LIMIT } from "./lib/constants.ts";
 
 const app = new Application();
 
@@ -10,7 +10,10 @@ for (const router of routers) {
 }
 
 app.use((ctx) => {
-  console.log(`${ctx.request.method} ${ctx.request.url.pathname}`);
+  // TODO: Implement rate-limter
+  console.log(
+    `${ctx.request.method} ${ctx.request.url.pathname}`,
+  );
 });
 
 app.addEventListener("listen", ({ port }) => {
@@ -21,4 +24,6 @@ export const serve = async () => {
   await app.listen({ port: Number(PORT) });
 };
 
-await serve();
+if (import.meta.main) {
+  await serve();
+}

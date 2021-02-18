@@ -33,11 +33,12 @@ export const TWITTER_BEARER_TOKEN = String(
 //   env["DISCORD_TOKEN"] || Deno.env.get("DISCORD_TOKEN"),
 // );
 
-const MINUTE = 1e3 * 60,
+export const MINUTE = 1e3 * 60,
   HOUR = MINUTE * 60,
   DAY = HOUR * 24;
 export const CACHE_PERIOD = DAY;
 export const MAX_HANG_TIME = MINUTE / 2;
+export const RATE_LIMIT = 250;
 
 for (
   const [name, value] of Object.entries(

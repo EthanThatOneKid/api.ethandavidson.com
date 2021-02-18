@@ -5,6 +5,13 @@ import { Parse } from "../../lib/parse.ts";
 import { MAX_HANG_TIME } from "../../lib/constants.ts";
 
 const reposRoute = new Router()
+  .get("/repos", async (ctx: RouterContext) => {
+    const payload = [];
+    for (const pinnedRepositoryName of pinnedRepositories) {
+      payload.push(await getRepo([pinnedRepositoryName]));
+    }
+    ctx.response.body = [...payload];
+  })
   .get("/repos/:path(.+)", async (ctx: RouterContext) => {
     ctx.response.body = { error_message: "No Such Repository" };
     if (ctx.params.path === undefined) {
@@ -31,5 +38,14 @@ const reposRoute = new Router()
 //   ctx.response.body = {};
 //   // Todo: Prefixing repo name with `~` returns the raw text data if path leads to file.
 // });
+
+export const pinnedRepositories = [
+  "api.ethandavidson.com",
+  "garden",
+  "neo-cli",
+  "sacafi",
+  "acmcsuf.com",
+  "tuffyhacks.com",
+] as const;
 
 export default reposRoute;

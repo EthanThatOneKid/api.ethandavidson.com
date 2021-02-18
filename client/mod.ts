@@ -33,7 +33,7 @@ export default class EthanDavidson {
   }
 
   /**
-   * This function returns a list of all of my public GitHub repositories fetched from the API.
+   * This function returns a list of my 6 pinned GitHub repositories.
    * If a `repo` is specified, it will return a single repository item.
    * If a `path` is specified, it will return a repository item including the information inside of the given path.
    * @example await ethan.repo();
@@ -53,7 +53,7 @@ export default class EthanDavidson {
     route: string,
     path?: string,
   ): Promise<T[]> {
-    const url = [this.#base_api, route, path].join("/");
+    const url = Format.path([this.#base_api, route, path]);
     const response = await fetch(url);
     const payload = await response.json();
     if (path !== undefined) {

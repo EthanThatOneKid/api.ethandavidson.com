@@ -36,3 +36,17 @@ Deno.test("EthanDavidson.experience('google-step-intern')", async () => {
   const experience = getExperienceFromSlug(experienceSlug);
   assertEquals(payload.pop(), experience);
 });
+
+Deno.test("EthanDavidson.repos()", async () => {
+  const ethan = new EthanDavidson({ base_api });
+  const payload = await ethan.experience();
+  assertEquals(payload.length, experiences.length);
+});
+
+Deno.test("EthanDavidson.experience('google-step-intern')", async () => {
+  const ethan = new EthanDavidson({ base_api });
+  const experienceSlug = "google-step-intern";
+  const payload = await ethan.experience(experienceSlug);
+  const experience = getExperienceFromSlug(experienceSlug);
+  assertEquals(payload.pop(), experience);
+});

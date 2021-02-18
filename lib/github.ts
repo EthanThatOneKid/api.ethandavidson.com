@@ -10,30 +10,39 @@ import { Parse } from "./parse.ts";
 
 const log = createLogger();
 
-const trees = new Map<string, GitHubRepositoryTreeCache>(),
+const files = new Map<string, GitHubFileCache>(),
+  trees = new Map<string, GitHubRepositoryTreeCache>(),
   repositories = new Map<string, GitHubRepositoryCache>();
 
 export const queries = {
-  latestCommit: (
-    repo: string,
-    accessToken?: string,
-  ): [string, RequestInit] => [
-    `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/commits?per_page=1`,
-    createQueryAuthorization(accessToken || null),
-  ],
-  tree: (
-    repo: string,
-    sha: string,
-    accessToken?: string,
-  ): [string, RequestInit] => [
-    `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/git/trees/${sha}`,
-    createQueryAuthorization(accessToken || null),
-  ],
+  // latestCommit: (
+  //   repo: string,
+  //   accessToken?: string,
+  // ): [string, RequestInit] => [
+  //   `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/commits?per_page=1`,
+  //   createQueryAuthorization(accessToken || null),
+  // ],
+  // tree: (
+  //   repo: string,
+  //   sha: string,
+  //   accessToken?: string,
+  // ): [string, RequestInit] => [
+  //   `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/git/trees/${sha}`,
+  //   createQueryAuthorization(accessToken || null),
+  // ],
   repo: (
     repo: string,
     accessToken?: string,
   ): [string, RequestInit] => [
     `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}`,
+    createQueryAuthorization(accessToken || null),
+  ],
+  contents: (
+    repo: string,
+    relativePath: string = "",
+    accessToken?: string,
+  ): [string, RequestInit] => [
+    `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/contents/${relativePath}`,
     createQueryAuthorization(accessToken || null),
   ],
   user: (accessToken?: string): [
@@ -62,28 +71,54 @@ export const queries = {
   },
 };
 
+const prepareFilePayload = (data: GitHubFileCache): GitHubFile => (
+  {
+    name: data.name,
+    size: data.size,
+    extension: Parse.filename(data.name).extension,
+    path: [...data.path],
+    content: data.content,
+  }
+);
+
+const prepareTreePayload = (
+  data: GitHubRepositoryTreeCache,
+): GitHubRepositoryTree => ({
+  path: [...data.path],
+  directories: data.directories.map(({ name }) => ({ name })),
+  files: data.files.map(({ name, size }) => ({
+    name,
+    size,
+    extension: Parse.filename(name).extension,
+  })),
+  hasReadme: data.files.some(({ name: completeFilename }) => {
+    const { name, extension } = Parse.filename(completeFilename);
+    return (extension !== null && /md|txt/i.test(extension)) &&
+      /README/i.test(name);
+  }),
+});
+
 const preparePayload = (
   repo: GitHubRepositoryCache,
-  tree: GitHubRepositoryTreeCache | null,
-): GitHubRepository => ({
-  ...{
-    name: repo.name,
-    description: repo.description,
-    tree: tree === null ? null : {
-      path: [...tree.path],
-      directories: tree.directories.map(({ name }) => ({ name })),
-      files: tree.files.map(({ name }) => ({
-        name,
-        extension: Parse.filename(name).extension,
-      })),
-      hasReadme: tree.files.some(({ name: completeFilename }) => {
-        const { name, extension } = Parse.filename(completeFilename);
-        return (extension !== null && /md|txt/i.test(extension)) &&
-          /README/i.test(name);
-      }),
-    },
-  },
-});
+  data: GitHubRepositoryTreeCache | GitHubFileCache | null,
+  isFile: boolean,
+): GitHubRepository => {
+  const basePayload = { name: repo.name, description: repo.description };
+  if (data === null) {
+    return { ...basePayload, type: "tree", tree: null };
+  } else if (isFile) {
+    return {
+      ...basePayload,
+      type: "file",
+      file: prepareFilePayload(data as GitHubFileCache),
+    };
+  }
+  return {
+    ...basePayload,
+    type: "tree",
+    tree: prepareTreePayload(data as GitHubRepositoryTreeCache),
+  };
+};
 
 const createCachedTree = (data: any, path: string[]) => {
   const result: GitHubRepositoryTreeCache = {
@@ -92,15 +127,23 @@ const createCachedTree = (data: any, path: string[]) => {
     directories: [],
     files: [],
   };
-  for (const { type, sha, path: name } of data.tree) {
-    if (type === "tree") {
-      result.directories.push({ name, sha });
+  for (const { type, name, size } of data) {
+    if (type === "dir") {
+      result.directories.push({ name });
     } else {
-      result.files.push({ name, sha });
+      result.files.push({ name, size });
     }
   }
   return result;
 };
+
+const createCachedFile = (data: any, path: string[]): GitHubFileCache => ({
+  path,
+  name: data.name,
+  content: data.content,
+  size: data.size,
+  expiration_date: generateExpirationDate(),
+});
 
 const findClosestCachedTree = (
   path: string[],
@@ -126,11 +169,11 @@ const findClosestCachedTree = (
   return [null, []];
 };
 
-const getTreeFromRoot = async (
+const getTreeOrFileFromRoot = async (
   repo: string,
   relativePath: string[],
   root: GitHubRepositoryTreeCache,
-): Promise<GitHubRepositoryTreeCache | null> => {
+): Promise<GitHubRepositoryTreeCache | GitHubFileCache | null> => {
   if (relativePath.length < 1) {
     log(`TREE IS ROOT (EMPTY RELATIVE PATH)`);
     return root;
@@ -138,15 +181,32 @@ const getTreeFromRoot = async (
   const fullPath = [...root.path];
   while (relativePath.length > 0) {
     const targetEntry = relativePath.shift();
-    const nextEntry = [...root.files, ...root.directories]
+    const nextFile = root.files
       .find(({ name }) => name === targetEntry);
-    if (nextEntry !== undefined) {
-      fullPath.push(nextEntry.name);
-      root = await fetch(...queries.tree(repo, nextEntry.sha))
+    const nextDirectory = root.directories
+      .find(({ name }) => name === targetEntry);
+    if (nextDirectory !== undefined) {
+      fullPath.push(nextDirectory.name);
+      root = await fetch(
+        ...queries.contents(
+          repo,
+          Format.path(fullPath.slice(1)),
+        ),
+      )
         .then((res) => res.json())
         .then((data) => createCachedTree(data, fullPath));
       trees.set(Format.path(fullPath), { ...root });
       log(`CACHED ${Format.path(root.path)} TREE`);
+    } else if (nextFile !== undefined) {
+      fullPath.push(nextFile.name);
+      return await fetch(
+        ...queries.contents(
+          repo,
+          Format.path(fullPath.slice(1)),
+        ),
+      )
+        .then((res) => res.json())
+        .then((data) => createCachedFile(data, fullPath));
     } else {
       return null;
     }
@@ -155,12 +215,7 @@ const getTreeFromRoot = async (
 };
 
 const getRootRepositoryTree = async (repo: string) => {
-  const root = await fetch(...queries.latestCommit(repo))
-    .then((res) => res.json())
-    .then((data) => {
-      return data[0].commit.tree.sha;
-    })
-    .then((sha) => fetch(...queries.tree(repo, sha)))
+  const root = await fetch(...queries.contents(repo))
     .then((res) => res.json())
     .then((data) => createCachedTree(data, [repo]));
   trees.set(repo, root);
@@ -170,11 +225,15 @@ const getRootRepositoryTree = async (repo: string) => {
 
 export const getTree = async (
   path: string[],
-): Promise<GitHubRepositoryTreeCache | null> => {
+): Promise<GitHubRepositoryTreeCache | GitHubFileCache | null> => {
   const [repo] = path;
   const [closestCachedTree, pathTrace] = findClosestCachedTree([...path]);
   if (closestCachedTree !== null) {
-    const tree = await getTreeFromRoot(repo, [...pathTrace], closestCachedTree);
+    const tree = await getTreeOrFileFromRoot(
+      repo,
+      [...pathTrace],
+      closestCachedTree,
+    );
     if (tree !== null) {
       return tree;
     }
@@ -184,7 +243,7 @@ export const getTree = async (
     return root;
   }
   const relativePath = path.slice(1);
-  return await getTreeFromRoot(repo, [...relativePath], root);
+  return await getTreeOrFileFromRoot(repo, [...relativePath], root);
 };
 
 export const getRepo = async (
@@ -196,7 +255,11 @@ export const getRepo = async (
   if (repositories.has(repo)) {
     const cachedRepo = repositories.get(repo);
     if (cachedRepo !== undefined && cachedRepo.expiration_date > now) {
-      return preparePayload(cachedRepo, tree);
+      return preparePayload(
+        cachedRepo,
+        tree,
+        tree !== null && "content" in tree,
+      );
     }
   }
   const payload: GitHubRepositoryCache = await fetch(...queries.repo(repo))
@@ -207,7 +270,7 @@ export const getRepo = async (
       expiration_date: generateExpirationDate(),
     }));
   repositories.set(repo, { ...payload });
-  return preparePayload(payload, tree);
+  return preparePayload(payload, tree, tree !== null && "content" in tree);
 };
 
 export const verifyCode = async (code: string): Promise<string | null> => {
@@ -240,11 +303,17 @@ const createQueryAuthorization = (
   }),
 });
 
-export interface GitHubRepository {
+export type GitHubRepository = {
   name: string;
   description: string;
+  type: "tree";
   tree: GitHubRepositoryTree | null;
-}
+} | {
+  name: string;
+  description: string;
+  type: "file";
+  file: GitHubFile | null;
+};
 
 export interface GitHubRepositoryCache {
   name: string;
@@ -255,14 +324,30 @@ export interface GitHubRepositoryCache {
 export interface GitHubRepositoryTree {
   path: string[];
   directories: { name: string }[];
-  files: { name: string; extension: string | null }[];
+  files: { name: string; extension: string | null; size: number }[];
   hasReadme: boolean;
 }
 
 export interface GitHubRepositoryTreeCache {
   path: string[];
-  directories: { name: string; sha: string }[];
-  files: { name: string; sha: string }[];
+  directories: { name: string }[];
+  files: { name: string; size: number }[];
+  expiration_date: number;
+}
+
+export interface GitHubFile {
+  name: string;
+  extension: string | null;
+  path: string[];
+  content: string;
+  size: number;
+}
+
+export interface GitHubFileCache {
+  name: string;
+  path: string[];
+  content: string;
+  size: number;
   expiration_date: number;
 }
 

@@ -11,6 +11,7 @@ To test the client library, spin up the development server in one terminal insta
 ### Scripts 📜
 
 - **Spin Up Server**: `deno run --allow-net --allow-read --allow-env mod.ts`
+- **Test Client and Server**: `deno test --allow-read --allow-net`
 - **Generate Documentation**: `deno run --allow-run scripts/docs.ts`
 
 ## Deployment 🚀
