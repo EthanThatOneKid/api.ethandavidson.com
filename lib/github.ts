@@ -6,6 +6,7 @@ import {
 } from "./constants.ts";
 import { Format } from "../lib/format.ts";
 import createLogger from "./create-logger.ts";
+import markdownToHtml from "./markdown-to-html.ts";
 import { Parse } from "./parse.ts";
 
 const log = createLogger();
@@ -15,21 +16,6 @@ const files = new Map<string, GitHubFileCache>(),
   repositories = new Map<string, GitHubRepositoryCache>();
 
 export const queries = {
-  // latestCommit: (
-  //   repo: string,
-  //   accessToken?: string,
-  // ): [string, RequestInit] => [
-  //   `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/commits?per_page=1`,
-  //   createQueryAuthorization(accessToken || null),
-  // ],
-  // tree: (
-  //   repo: string,
-  //   sha: string,
-  //   accessToken?: string,
-  // ): [string, RequestInit] => [
-  //   `https://api.github.com/repos/${GITHUB_HANDLE}/${repo}/git/trees/${sha}`,
-  //   createQueryAuthorization(accessToken || null),
-  // ],
   repo: (
     repo: string,
     accessToken?: string,
@@ -71,32 +57,30 @@ export const queries = {
   },
 };
 
-const prepareFilePayload = (data: GitHubFileCache): GitHubFile => (
-  {
-    name: data.name,
-    size: data.size,
-    extension: Parse.filename(data.name).extension,
-    path: [...data.path],
-    content: data.content,
-  }
-);
+const prepareFilePayload = (data: GitHubFileCache): GitHubFile => {
+  const { name, size, path, content: base64Content } = data;
+  const content = atob(base64Content);
+  const { extension } = Parse.filename(name);
+  const isReadme = checkIsReadme({ name });
+  const html = isReadme ? markdownToHtml(content) : undefined;
+  return { name, extension, size, path, content, isReadme, html };
+};
 
 const prepareTreePayload = (
   data: GitHubRepositoryTreeCache,
-): GitHubRepositoryTree => ({
-  path: [...data.path],
-  directories: data.directories.map(({ name }) => ({ name })),
-  files: data.files.map(({ name, size }) => ({
-    name,
-    size,
-    extension: Parse.filename(name).extension,
-  })),
-  hasReadme: data.files.some(({ name: completeFilename }) => {
-    const { name, extension } = Parse.filename(completeFilename);
-    return (extension !== null && /md|txt/i.test(extension)) &&
-      /README/i.test(name);
-  }),
-});
+): GitHubRepositoryTree => {
+  // const { path, directories, files } = data;
+  return {
+    path: [...data.path],
+    directories: data.directories.map(({ name }) => ({ name })),
+    files: data.files.map(({ name, size }) => ({
+      name,
+      size,
+      extension: Parse.filename(name).extension,
+    })),
+    hasReadme: data.files.some(checkIsReadme),
+  };
+};
 
 const preparePayload = (
   repo: GitHubRepositoryCache,
@@ -303,6 +287,12 @@ const createQueryAuthorization = (
   }),
 });
 
+const checkIsReadme = ({ name: completeFilename }: { name: string }) => {
+  const { name, extension } = Parse.filename(completeFilename);
+  return (extension !== null && /md|txt/i.test(extension)) &&
+    /README/i.test(name);
+};
+
 export type GitHubRepository = {
   name: string;
   description: string;
@@ -341,6 +331,8 @@ export interface GitHubFile {
   path: string[];
   content: string;
   size: number;
+  isReadme: boolean;
+  html?: string;
 }
 
 export interface GitHubFileCache {
