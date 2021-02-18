@@ -2,7 +2,7 @@
 
 Welcome to `/repos`!
 
-![`api.ethandavidson.com/repos` Demo](../../docs/media/demo.gif)
+![`api.ethandavidson.com/repos` Demo][demo]
 
 ## Making the Most of Rate-Limiting
 
@@ -94,3 +94,5 @@ cached_trees: [
   /react/packages/react-fetch
 ]
 ```
+
+[demo]: ../../docs/media/repos-demo.gif
