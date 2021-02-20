@@ -29,3 +29,7 @@ This endpoint will manage all of the needed services for responding with quick b
 ## Badges Endpoint
 
 This endpoint will allow me to use custom badges for my GitHub READMEs.
+
+## Deploy to Digital Ocean
+
+https://blog.logrocket.com/how-to-deploy-deno-applications-to-production/
