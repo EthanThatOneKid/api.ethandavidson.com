@@ -4,10 +4,6 @@
 
 This endpoint would show my competitive teams and friend code to battle with.
 
-## Discord Pusher Endpoint
-
-This endpoint would proc a Discord bot to ping me a custom message.
-
 ## Error Handling
 
 There needs to be a consistent way to manage errors.
@@ -34,4 +30,4 @@ https://blog.logrocket.com/how-to-deploy-deno-applications-to-production/
 ## Contact
 
 - **GET /contact**: Delivers my public contact information.
-- **POST /contact**: Procs a Discord bot to send me a private message on Discord. Details are provided in the body.
+- **POST /contact**: Procs a Discord bot to send me a private message on Discord. Message details are provided in the body of the request.
