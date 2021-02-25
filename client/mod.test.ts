@@ -5,9 +5,9 @@ import {
   experiences,
   getExperienceFromSlug,
 } from "../routes/experience/mod.ts";
-import { serve } from "../mod.ts";
+import { PORT } from "../lib/constants.ts";
 
-const base_api = await serve();
+const base_api = `http://localhost:${PORT}`;
 
 const TESTS: Record<string, () => Promise<void>> = {
   "EthanDavidson.projects()": async () => {
