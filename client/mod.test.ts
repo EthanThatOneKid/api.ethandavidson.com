@@ -5,11 +5,10 @@ import {
   experiences,
   getExperienceFromSlug,
 } from "../routes/experience/mod.ts";
+import { serve } from "../mod.ts";
 import { PORT } from "../lib/constants.ts";
 
-// const serverPath = new URL("../mod.ts", import.meta.url).href;
-// const worker = new Worker(serverPath, { type: "module" });
-// console.log({ serverPath, worker });
+const app = await serve();
 const base_api = `http://localhost:${PORT}`;
 
 const TESTS: Record<string, () => Promise<void>> = {
@@ -44,18 +43,18 @@ const TESTS: Record<string, () => Promise<void>> = {
   },
 };
 
-// let ranTests = 0;
-// const finishTest = (totalTests: number) => {
-//   ranTests++;
-//   if (ranTests >= totalTests) {
-//     worker.terminate();
-//   }
-// };
+let ranTests = 0;
+const finishTest = (totalTests: number) => {
+  ranTests++;
+  if (ranTests >= totalTests) {
+    worker.terminate();
+  }
+};
 
 Object.entries(TESTS)
-  .forEach(([name, test]) => {
-    // const totalTests = tests.length;
-    // const fn = () => test().finally(() => finishTest(totalTests));
+  .forEach(([name, test], _, tests) => {
+    const totalTests = tests.length;
+    const fn = () => test().finally(() => finishTest(totalTests));
     const sanitizeOps = false;
     const sanitizeResources = false;
     Deno.test({ name, fn: test, sanitizeOps, sanitizeResources });
