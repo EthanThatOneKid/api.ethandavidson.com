@@ -6,10 +6,8 @@ import {
   getExperienceFromSlug,
 } from "../routes/experience/mod.ts";
 import { serve } from "../mod.ts";
-import { PORT } from "../lib/constants.ts";
 
-const app = await serve();
-const base_api = `http://localhost:${PORT}`;
+const base_api = await serve();
 
 const TESTS: Record<string, () => Promise<void>> = {
   "EthanDavidson.projects()": async () => {
@@ -43,19 +41,9 @@ const TESTS: Record<string, () => Promise<void>> = {
   },
 };
 
-let ranTests = 0;
-const finishTest = (totalTests: number) => {
-  ranTests++;
-  if (ranTests >= totalTests) {
-    worker.terminate();
-  }
-};
-
 Object.entries(TESTS)
-  .forEach(([name, test], _, tests) => {
-    const totalTests = tests.length;
-    const fn = () => test().finally(() => finishTest(totalTests));
-    const sanitizeOps = false;
-    const sanitizeResources = false;
-    Deno.test({ name, fn: test, sanitizeOps, sanitizeResources });
+  .forEach(([name, fn]) => {
+    // const sanitizeOps = false;
+    // const sanitizeResources = false;
+    Deno.test({ name, fn });
   });
