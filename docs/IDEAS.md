@@ -5,14 +5,14 @@ I would recommend it to any type of developer who is comfortable with making API
 The possibilities are limited only by the creativity of the individual.
 The goal of this project is to provide a service for others; so that other people/machines can get relevant, structured information relevant to myself.
 The real test of this project, however, is not to satisfy other people/machines, but to satisfy myself.
-This project should be engineered as something that helps *me*.
+This project should be engineered as something that helps _me_.
 
 A lot of the information provided by my API is static, which I have to update manually.
-That is unfortunate because it forces me to use this GitHub repository as a sort of *CMS* (content management service).
+That is unfortunate because it forces me to use this GitHub repository as a sort of _CMS_ (content management service).
 Really, I do not mind using GitHub as a CMS, but others may, so follow your own heart.
 
-The real goal here is to engineer the API to generate structured data out of a *self-sufficient source*.
-By *self-sufficient source*, I mean a type of data that is automatically updated naturally overtime.
+The real goal here is to engineer the API to generate structured data out of a _self-sufficient source_.
+By _self-sufficient source_, I mean a type of data that is automatically updated naturally overtime.
 A perfect example is my own GitHub repository data.
 The `/repos` route of this API supplies data based on data received from GitHub.
 Another example is fetching my own Twitter bio.
@@ -49,3 +49,8 @@ https://blog.logrocket.com/how-to-deploy-deno-applications-to-production/
 
 - **GET /contact**: Delivers my public contact information.
 - **POST /contact**: Procs a Discord bot to send me a private message on Discord. Message details are provided in the body of the request.
+
+## GitHub Newsfeed
+
+I can use this [GitHub Received Events API](https://api.github.com/users/octocat/received_events) to get a list of recent things that have happened based on my GitHub profile.
+I can display the data in creative ways, such as connections on a globe or anything.
