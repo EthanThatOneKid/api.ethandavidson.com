@@ -10,6 +10,21 @@ export type {
 } from "./github.ts";
 export type { ApproxDate, ProjectTag };
 
+export interface GitHubProfileScrapeResult {
+  bio: string;
+  followers: number;
+  contributionActivity: any[];
+  userStatus: {
+    emoji: string;
+    message: string;
+  };
+  pinnedRepos: {
+    name: string;
+    description: string;
+    language: string;
+  }[];
+}
+
 export interface About {
   bio: string;
   image_url: string;
