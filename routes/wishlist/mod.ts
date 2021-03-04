@@ -17,6 +17,12 @@ export const wishlist: WishlistItem[] = [
     link: "https://watch.boomerang.com/shows",
     purchaseDetails: null,
   },
+  {
+    slug: "gfuel-tropical-rain-tub",
+    title: "Tropical Rain Tub",
+    link: "https://gfuel.com/collections/tubs/products/tropical-rain-tub",
+    purchaseDetails: null
+  }
 ];
 
 export default createCollectionRouter<WishlistItem>(
