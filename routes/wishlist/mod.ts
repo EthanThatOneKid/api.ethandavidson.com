@@ -21,12 +21,12 @@ export const wishlist: WishlistItem[] = [
     slug: "gfuel-tropical-rain-tub",
     title: "Tropical Rain Tub",
     link: "https://gfuel.com/collections/tubs/products/tropical-rain-tub",
-    purchaseDetails: null
-  }
+    purchaseDetails: null,
+  },
 ];
 
 export default createCollectionRouter<WishlistItem>(
-  "whishlist",
+  "wishlist",
   wishlist // Do not display items that I already got
     .filter(({ purchaseDetails }) => purchaseDetails !== null),
 );
