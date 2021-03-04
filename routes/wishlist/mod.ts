@@ -28,5 +28,5 @@ export const wishlist: WishlistItem[] = [
 export default createCollectionRouter<WishlistItem>(
   "wishlist",
   wishlist // Do not display items that I already got
-    .filter(({ purchaseDetails }) => purchaseDetails !== null),
+    .filter(({ purchaseDetails }) => purchaseDetails === null),
 );
