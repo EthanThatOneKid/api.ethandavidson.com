@@ -23,6 +23,13 @@ export const wishlist: WishlistItem[] = [
     link: "https://gfuel.com/collections/tubs/products/tropical-rain-tub",
     purchaseDetails: null,
   },
+  {
+    slug: "shining-fates-elite-trainer-box",
+    title: "Pokemon TCG: Shining Fates Elite Trainer Box",
+    link:
+      "https://www.amazon.com/Pokemon-TCG-Shining-Fates-Trainer/dp/B08PS2F9RD/ref=sr_1_16?crid=3728DKJO3V9MC&dchild=1&keywords=shining+fates+elite+trainer+box&qid=1614892900&sprefix=shining+fates%2Caps%2C229&sr=8-16",
+    purchaseDetails: null,
+  },
 ];
 
 export default createCollectionRouter<WishlistItem>(
