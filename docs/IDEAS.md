@@ -54,3 +54,7 @@ https://blog.logrocket.com/how-to-deploy-deno-applications-to-production/
 
 I can use this [GitHub Received Events API](https://api.github.com/users/octocat/received_events) to get a list of recent things that have happened based on my GitHub profile.
 I can display the data in creative ways, such as connections on a globe or anything.
+
+## Discord Bot Spin Off
+
+This Discord bot would use the `api.ethandavidson.com` client to deliver formatted information about me online.

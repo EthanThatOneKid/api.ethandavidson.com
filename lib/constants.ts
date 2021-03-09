@@ -25,14 +25,6 @@ export const TWITTER_BEARER_TOKEN = String(
     Deno.env.get("TWITTER_BEARER_TOKEN"),
 );
 
-// export const DISCORD_ID = String(
-//   env["DISCORD_ID"] || Deno.env.get("DISCORD_ID"),
-// );
-
-// export const DISCORD_TOKEN = String(
-//   env["DISCORD_TOKEN"] || Deno.env.get("DISCORD_TOKEN"),
-// );
-
 export const MINUTE = 1e3 * 60,
   HOUR = MINUTE * 60,
   DAY = HOUR * 24;
@@ -49,8 +41,6 @@ for (
       GITHUB_APP_SECRET,
       TWITTER_HANDLE,
       TWITTER_BEARER_TOKEN,
-      // DISCORD_ID,
-      // DISCORD_TOKEN,
     },
   )
 ) {
